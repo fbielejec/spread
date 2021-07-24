@@ -40,7 +40,8 @@
  {:ui {:target     :browser
        :output-dir "services/ui/js"
        :asset-path "/js"
-       :js-options {:js-package-dirs ["node_modules"]}
+       :js-options {:js-package-dirs ["node_modules"]
+                    :anon-fn-naming-policy :unmapped}
        :modules
        {:main ;; <- becomes /js/main.js
         {:entries [ui.main]}}

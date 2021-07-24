@@ -29,7 +29,11 @@
             [ui.component.search :refer [search-bar]]
             [ui.format :refer [format-percentage]]
             [ui.subscriptions :as subs]
-            [ui.utils :as ui-utils :refer [>evt dispatch-n]]))
+            [ui.utils :as ui-utils :refer [>evt dispatch-n]]
+
+            ["@material-ui/core/Accordion" :as MuiAccordion]
+
+            ))
 
 (def use-styles (styles/make-styles (fn [_]
                                       {:root {:background "#ECEFF8 0% 0% no-repeat padding-box"
@@ -115,7 +119,13 @@
                                                              :font           "normal normal 900 10px/11px Roboto"
                                                              :letter-spacing "0px"
                                                              :color          "#757295"
-                                                             :opacity        1}})))
+                                                             :opacity        1}
+
+                                       :no-margin {:margin 0
+                                                   :background :red
+                                                   }
+
+                                       })))
 
 (def type->label {"CONTINUOUS_TREE"       "Continuous: MCC tree"
                   "DISCRETE_TREE"         "Discrete: MCC tree"
@@ -139,44 +149,44 @@
                                                            }"
                                                  :variables {:analysisId id}}])])}
      [list-item-text {:primary   (reagent/as-element [:div {:class-name (:primary classes)}
-                                                    [:span (or readable-name "Unknown")]
-                                                    (when error?
-                                                      [chip {:label   "Error"
-                                                             :size    :small
-                                                             :variant "outlined"
-                                                             :color   "secondary"}])
-                                                    (when new?
-                                                      [chip {:label   "New"
-                                                             :size    :small
-                                                             :variant "outlined"
-                                                             :color   "primary"}])
-                                                    [:div
-                                                     [icon-button {:aria-label    "analysis kebab menu"
-                                                                   :aria-controls "menu-kebab"
-                                                                   :aria-haspopup true
-                                                                   :color         "inherit"
-                                                                   :style         {:padding 0}
-                                                                   :on-click      (fn [event]
-                                                                                    (setAnchorElement (.-currentTarget event))
-                                                                                    (.stopPropagation event))}
-                                                      [:img {:src (:kebab-menu icons)}]]
-                                                     [menu {:id               "menu-kebab"
-                                                            :anchorEl         anchorElement
-                                                            :anchorOrigin     {:vertical   "top"
-                                                                               :horizontal "right"}
-                                                            :transform-origin {:vertical   "top"
-                                                                               :horizontal "right"}
-                                                            :keep-mounted     true
-                                                            :open             open?
-                                                            :on-close         handle-close}
-                                                      [menu-item {:on-click (fn []
-                                                                              (prn "TODO"))} "Edit"]
-                                                      [menu-item {:on-click (fn []
-                                                                              (prn "TODO"))} "Load different file"]
-                                                      [menu-item {:on-click (fn []
-                                                                              (prn "TODO"))} "Copy settings"]
-                                                      [menu-item {:on-click (fn []
-                                                                              (prn "TODO"))} "Delete"]]]])
+                                                      [:span (or readable-name "Unknown")]
+                                                      (when error?
+                                                        [chip {:label   "Error"
+                                                               :size    :small
+                                                               :variant "outlined"
+                                                               :color   "secondary"}])
+                                                      (when new?
+                                                        [chip {:label   "New"
+                                                               :size    :small
+                                                               :variant "outlined"
+                                                               :color   "primary"}])
+                                                      [:div
+                                                       [icon-button {:aria-label    "analysis kebab menu"
+                                                                     :aria-controls "menu-kebab"
+                                                                     :aria-haspopup true
+                                                                     :color         "inherit"
+                                                                     :style         {:padding 0}
+                                                                     :on-click      (fn [event]
+                                                                                      (setAnchorElement (.-currentTarget event))
+                                                                                      (.stopPropagation event))}
+                                                        [:img {:src (:kebab-menu icons)}]]
+                                                       [menu {:id               "menu-kebab"
+                                                              :anchorEl         anchorElement
+                                                              :anchorOrigin     {:vertical   "top"
+                                                                                 :horizontal "right"}
+                                                              :transform-origin {:vertical   "top"
+                                                                                 :horizontal "right"}
+                                                              :keep-mounted     true
+                                                              :open             open?
+                                                              :on-close         handle-close}
+                                                        [menu-item {:on-click (fn []
+                                                                                (prn "TODO"))} "Edit"]
+                                                        [menu-item {:on-click (fn []
+                                                                                (prn "TODO"))} "Load different file"]
+                                                        [menu-item {:on-click (fn []
+                                                                                (prn "TODO"))} "Copy settings"]
+                                                        [menu-item {:on-click (fn []
+                                                                                (prn "TODO"))} "Delete"]]]])
                       :secondary (reagent/as-element [typography {:class-name (:secondary classes)}
                                                       (type->label of-type)])}]]))
 
@@ -230,17 +240,22 @@
     [typography {:class-name (:progress-typography classes)}
      (str (format-percentage progress 1.0) " finished")]]])
 
+
+(defn custom-styles [{:keys [spacing] :as theme}]
+  {:root     {:margin 0
+              :background :blue}
+   :expanded {:margin 0}})
+
+(defn with-custom-styles
+  [component styles]
+  ((styles/with-styles styles) component))
+
 (defn queue [classes {:keys [default-expanded?]}]
   (let [queued-analysis (re-frame/subscribe [::subs/queued-analysis])]
     (fn []
-      (let [items
-            #_           [{:readable-name "Relaxed_sDollo_AllSingleton_v2"
-                           :progress      0.3
-                           :id            "fff-ff-fff"
-                           :of-type       "CONTINUOUS_TREE"}]
-            @queued-analysis
+      (let [items @queued-analysis
             queued-count (count items)]
-        [accordion {:defaultExpanded default-expanded?}
+        [(with-custom-styles accordion custom-styles) {:defaultExpanded default-expanded?}
          [accordion-summary {:expand-icon (reagent/as-element [:img {:src (:dropdown icons)}])}
           [:div {:class-name (:header classes)}
            [:img {:src (:queue icons)}]
@@ -257,6 +272,15 @@
                     ^{:key id} [queued-menu-item item classes])
                   items))]]]))))
 
+(def mui-accordion
+  (reagent/reactify-component
+    (fn [props]
+
+      (prn "@@@@@@" props)
+
+      [:> (.-default MuiAccordion) props])))
+
+
 (defn run-new [classes {:keys [default-expanded?]}]
   (let [items [{:main-label "Discrete:"         :sub-label "MCC tree"
                 :target     :route/new-analysis :query     {:tab "discrete-mcc-tree"}}
@@ -264,7 +288,10 @@
                 :target     :route/new-analysis :query     {:tab "discrete-rates"}}
                {:main-label "Continuous:"       :sub-label "MCC tree"
                 :target     :route/new-analysis :query     {:tab "continuous-mcc-tree"}}]]
-    [accordion {:defaultExpanded default-expanded?}
+    ;; TODO: nested styling
+    [:> mui-accordion {:classes         {:root     (:no-margin classes)
+                                         :expanded (:no-margin classes)}
+                       :defaultExpanded default-expanded?}
      [accordion-summary {:expand-icon (reagent/as-element [:img {:src (:dropdown icons)}])}
       [:img {:src (:run-new icons)}]
       [typography {:class-name (:heading classes)} "Run new analysis"]]
