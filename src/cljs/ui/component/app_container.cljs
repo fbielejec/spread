@@ -1,7 +1,7 @@
 (ns ui.component.app-container
   (:require ["react" :as react]
             [re-frame.core :as re-frame]
-            [reagent-material-ui.core.accordion :refer [accordion]]
+            [reagent-material-ui.core.accordion #_:refer #_[accordion]]
             [reagent-material-ui.core.accordion-details :refer [accordion-details]]
             [reagent-material-ui.core.accordion-summary :refer [accordion-summary]]
             [reagent-material-ui.core.app-bar :refer [app-bar]]
@@ -30,6 +30,11 @@
             [ui.format :refer [format-percentage]]
             [ui.subscriptions :as subs]
             [ui.utils :as ui-utils :refer [>evt dispatch-n]]))
+
+(defn accordion [m & childs]  
+  [reagent-material-ui.core.accordion/accordion
+   (assoc m :style {:margin "0px"})
+   childs])
 
 (def use-styles (styles/make-styles (fn [_]
                                       {:root {:background "#ECEFF8 0% 0% no-repeat padding-box"
@@ -115,7 +120,8 @@
                                                              :font           "normal normal 900 10px/11px Roboto"
                                                              :letter-spacing "0px"
                                                              :color          "#757295"
-                                                             :opacity        1}})))
+                                                             :opacity        1}
+                                       :accordion {:margin "0px"}})))
 
 (def type->label {"CONTINUOUS_TREE"       "Continuous: MCC tree"
                   "DISCRETE_TREE"         "Discrete: MCC tree"
@@ -257,6 +263,10 @@
                     ^{:key id} [queued-menu-item item classes])
                   items))]]]))))
 
+(def custom-accordion ((styles/with-styles (fn [_] {:root {:margin "0px"}
+                                                    :expanded {:margin "0px"}}))
+                       accordion))
+
 (defn run-new [classes {:keys [default-expanded?]}]
   (let [items [{:main-label "Discrete:"         :sub-label "MCC tree"
                 :target     :route/new-analysis :query     {:tab "discrete-mcc-tree"}}
@@ -264,7 +274,12 @@
                 :target     :route/new-analysis :query     {:tab "discrete-rates"}}
                {:main-label "Continuous:"       :sub-label "MCC tree"
                 :target     :route/new-analysis :query     {:tab "continuous-mcc-tree"}}]]
-    [accordion {:defaultExpanded default-expanded?}
+    
+    [accordion
+     {:defaultExpanded default-expanded?
+      ;;:class-name (:accordion classes)
+      :style {:margin "0px"}
+      } 
      [accordion-summary {:expand-icon (reagent/as-element [:img {:src (:dropdown icons)}])}
       [:img {:src (:run-new icons)}]
       [typography {:class-name (:heading classes)} "Run new analysis"]]
@@ -272,20 +287,20 @@
      [accordion-details {:class-name (:details classes)}
       [list
        (doall
-         (map-indexed (fn [index {:keys [main-label sub-label target query]}]
-                        [list-item {:key      index
-                                    :button   true
-                                    :on-click #(>evt [:router/navigate target nil query])}
-                         [box {:class-name (:box classes)}
-                          main-label]
-                         [list-item-text
-                          {:class-name               (:secondary classes)
-                           :secondary                sub-label
-                           :secondaryTypographyProps {:align "left"}}]])
-                      items))]]]))
+        (map-indexed (fn [index {:keys [main-label sub-label target query]}]
+                       [list-item {:key      index
+                                   :button   true
+                                   :on-click #(>evt [:router/navigate target nil query])}
+                        [box {:class-name (:box classes)}
+                         main-label]
+                        [list-item-text
+                         {:class-name               (:secondary classes)
+                          :secondary                sub-label
+                          :secondaryTypographyProps {:align "left"}}]])
+                     items))]]]))
 
 (defn main-menu [classes]
-  [:div
+  [:div.app-sidebar.panel
    [run-new classes {:default-expanded? true}]
    [completed classes {:default-expanded? true}]
    [queue classes {:default-expanded? true}]
@@ -333,39 +348,24 @@
                               (handle-close))}
        "Delete account"]]]))
 
-(defn header [classes]
-  [app-bar {:position   :sticky
-            :class-name (:app-bar classes)}
-   [grid {:container true
-          :spacing   2}
-    [grid {:item true :xs false :sm 1}]
-    [grid {:item true :xs 10 :sm 10}
-     [toolbar {:disableGutters true
-               :class-name     (:header classes)
-               :on-click       #(>evt [:router/navigate :route/home])}
-      [button {:class-name (:menu-button classes)
-               :color      :inherit
-               :start-icon (reagent/as-element [avatar {:alt "spread" :variant :square :src (arg->icon (:spread icons))}])}
-       [typography {:class-name (:title classes) :variant :h6} "Spread"]]
-      [user-login classes]]]
-    [grid {:item true :xs false :sm 1}]]])
+(defn header-logo []
+  [:div.app-header-logo {:on-click #(>evt [:router/navigate :route/home])}
+   [:div.logo 
+    [:div.logo-img
+     [:div.hex.hex1] [:div.hex.hex2] [:div.hex.hex3] [:div.hex.hex4] ]
+    [:span.text "spread"]]])
+
+(defn header-menu []
+  [:div.app-header-menu
+   [user-login {}]])
 
 (defn app-container []
-  (let [classes (use-styles)]
-    (fn [child-page]
-      [grid {:class-name (:root classes)
-             :container  true
-             :direction  :column}
-       [header classes]
-       [grid {:container true
-              :spacing   2}
-        [grid {:item true :xs false :sm 1}]
-        [grid {:item true :xs 3 :sm 3}
-         [card {:class-name (:card classes)}
-          [card-content
-           [main-menu classes]]]]
-        [grid {:item true :xs 7 :sm 7}
-         [card {:class-name (:card classes)}
-          [card-content
-           child-page]]]
-        [grid {:item true :xs false :sm 1}]]])))
+  (fn [child-page]
+    [:div.app-container-grid
+     [:div.app-header-spacer-1]
+     [header-logo]
+     [header-menu]
+     [:div.app-header-spacer-2]
+     [main-menu]     
+     [:div.app-body.panel
+      child-page]]))

@@ -1,0 +1,125 @@
+:root {
+	--header-bg-color: white;
+}
+html,body,#app,.app-container-grid {
+    height: 100%;
+	font-family: 'Roboto', sans-serif;
+	background-color: #ECEFF8;
+}
+
+/**********************/
+/* General components */
+/**********************/
+
+.panel {
+	background-color: white;
+	border-radius: 10px;
+	overflow: hidden;
+}
+/********************************/
+/* Application container layout */
+/********************************/
+
+/* Header */
+.app-header-spacer-1 {
+	grid-area: app-header-spacer-1;
+	background-color: var(--header-bg-color);
+}
+
+.app-header-spacer-2 {
+	grid-area: app-header-spacer-2;
+	background-color: var(--header-bg-color);
+}
+
+/* Header logo */
+
+.app-header-logo {
+	grid-area: app-header-logo;
+	display: flex;
+	align-content: center;
+	background-color: var(--header-bg-color);
+	position: relative;
+}
+
+.app-header-logo .text {
+	position: absolute;
+	top: 33px;
+	left: 55px;
+	width: 134px;
+	height: 35px;
+    text-align: left;
+	font-size: 25px;
+	font-weight: bold;
+	letter-spacing: 3.9px;
+	color: #3A3668;
+	text-transform: uppercase;
+	opacity: 1;	
+}
+
+.app-header-logo > .logo .logo-img {
+    display: inline-block;
+}
+.app-header-logo > .logo .logo-img .hex {
+	width: 16px;
+	height: 18px;
+	transform: matrix(0, 1, -1, 0, 0, 0);    
+	opacity: 1;
+	position: absolute;
+}
+.app-header-logo > .logo .logo-img .hex1 {
+	top: 33px;
+	left: 10px;	
+	background: #3A3668 0% 0% no-repeat padding-box;
+	box-shadow: 0px 3px 6px #39376529;
+}
+
+.app-header-logo > .logo .logo-img .hex2 {
+	top: 33px;
+	left: 29px;	
+	background: #EEBE53 0% 0% no-repeat padding-box;
+	box-shadow: 0px 3px 6px #EEBE53;
+}
+
+.app-header-logo > .logo .logo-img .hex3 {
+	top: 50px;
+	left: 0px;
+	background: #3A3668 0% 0% no-repeat padding-box;
+	box-shadow: 0px 3px 6px #39376529;
+}
+
+.app-header-logo > .logo .logo-img .hex4 {
+	top: 50px;
+	left: 19px;
+	background: #3A3668 0% 0% no-repeat padding-box;
+	box-shadow: 0px 3px 6px #39376529;
+}
+
+/* Header menu */
+.app-header-menu {
+	grid-area: app-header-menu;
+	display: flex;
+	justify-content: flex-end;
+    align-items: center;
+	background-color: var(--header-bg-color);
+}
+
+/* Sidebar */
+.app-sidebar {
+	grid-area: app-sidebar;
+	margin-right: 25px;
+}
+
+/* Body */
+.app-body {
+	grid-area: app-body;
+}
+
+.app-container-grid {
+	display: grid;
+	grid-template-columns : 1fr 300px 70% 1fr;
+	grid-template-rows : 100px 1fr;
+	grid-row-gap: 25px;
+    grid-template-areas :
+		"app-header-spacer-1 app-header-logo  app-header-menu app-header-spacer-2"
+		".                   app-sidebar      app-body        .";
+}
