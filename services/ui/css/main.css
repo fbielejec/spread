@@ -37,7 +37,7 @@ li {
 .app-header-logo {
 	grid-area: app-header-logo;
 	display: flex;
-	align-content: center;
+    align-items: center;
 	background-color: var(--header-bg-color);    
 }
 
@@ -57,6 +57,7 @@ li {
 	grid-template-rows: 1fr 120px;
 	grid-area: app-sidebar;
 	margin-right: 25px;
+	padding-top: 10px;
 }
 
 .app-sidebar .readable-name {
@@ -147,6 +148,10 @@ li {
 	border-top: 1px solid #E2E2EA;
 }
 
+.app-sidebar .footer .button {
+	width: 80%;
+}
+
 /* Body */
 .app-body {
 	grid-area: app-body;
@@ -160,4 +165,32 @@ li {
     grid-template-areas :
 		"app-header-spacer-1 app-header-logo  app-header-menu app-header-spacer-2"
 		".                   app-sidebar      app-body        .";
+}
+
+/*********/
+/* Pages */
+/*********/
+
+/* Home page */
+
+.home-page {
+	display: flex;
+	flex-direction: column;
+    height: 100%;
+    justify-content: space-around;
+	align-items: center;
+	color: #757295;
+}
+
+.home-page .main-section {
+	border-bottom: 1px solid #E2E2EA;
+	height: 250px;
+}
+.home-page .main-section h2 {
+	text-align: center;
+	color: #3A3668;
+}
+
+.home-page section {
+	width: 300px;
 }

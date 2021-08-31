@@ -21,3 +21,9 @@
    [:div.logo-img
     [:div.hex.hex1] [:div.hex.hex2] [:div.hex.hex3] [:div.hex.hex4]]
    [:span.text "spread"]])
+
+(defn button [{:keys [text on-click icon class]}]
+  [:div.button.clickable {:class class
+                          :on-click on-click}
+   [:img {:src icon}]
+   [:span text]])

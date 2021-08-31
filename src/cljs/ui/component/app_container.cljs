@@ -7,7 +7,7 @@
             [reagent-material-ui.core.app-bar :refer [app-bar]]
             [reagent-material-ui.core.avatar :refer [avatar]]
             [reagent-material-ui.core.box :refer [box]]
-            [reagent-material-ui.core.button :refer [button]]
+            [shared.components :refer [button]]
             [reagent-material-ui.core.card :refer [card]]
             [reagent-material-ui.core.card-content :refer [card-content]]
             [reagent-material-ui.core.chip :refer [chip]]
@@ -70,16 +70,7 @@
         completed-analysis (re-frame/subscribe [::subs/completed-analysis-search])
         new-completed      (re-frame/subscribe [::subs/new-completed-analysis])]
     (fn []
-      (let [items    [{:id "one"
-                       :readable-name "Some readable"
-                       :of-type "CONTINUOUS_TREE"
-                       :status "OK"
-                       :new? true}
-                      {:id "two"
-                       :readable-name "Other readable"
-                       :of-type "CONTINUOUS_TREE"
-                       :status "ERROR"
-                       :new? false}] #_@completed-analysis
+      (let [items @completed-analysis
             new-count (count @new-completed)]
         [collapsible-tab (cond-> {:id :completed
                                   :title "Completed data analysis"
@@ -161,13 +152,10 @@
     [completed]
     [queue]]
    [:div.footer
-    [button {:variant   "contained"
-             :color     "primary"
-             :size      "large"
-             :className (:button classes)
-             :startIcon (reagent/as-element [:img {:src (:run-new icons)}])
-             :on-click  #(>evt [:router/navigate :route/new-analysis nil {:tab "continuous-mcc-tree"}])}
-     "Run new analysis"]]])
+    [button {:text "Run new analysis"
+             :on-click #(>evt [:router/navigate :route/new-analysis nil {:tab "continuous-mcc-tree"}])
+             :class "primary"
+             :icon "icons/icn_run_analysis_white.svg"}]]])
 
 (defn user-login [classes]
   (let [{:keys [email]}                  @(re-frame/subscribe [::subs/authorized-user])
