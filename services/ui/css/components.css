@@ -1,0 +1,114 @@
+/**********************/
+/* General components */
+/**********************/
+
+/* Panel */
+.panel {
+	background-color: white;
+	border-radius: 10px;
+	overflow: hidden;
+}
+
+/* Spread logo */
+.spread-logo {
+	position: relative;
+}
+
+.spread-logo .text {
+	position: absolute;
+	top: 33px;
+	left: 55px;
+	width: 134px;
+	height: 35px;
+    text-align: left;
+	font-size: 25px;
+	font-weight: bold;
+	letter-spacing: 3.9px;
+	color: #3A3668;
+	text-transform: uppercase;
+	opacity: 1;	
+}
+
+.spread-logo .logo-img {
+    display: inline-block;
+}
+.spread-logo .logo-img .hex {
+	width: 16px;
+	height: 18px;
+	transform: matrix(0, 1, -1, 0, 0, 0);    
+	opacity: 1;
+	position: absolute;
+}
+.spread-logo .logo-img .hex1 {
+	top: 33px;
+	left: 10px;	
+	background: #3A3668 0% 0% no-repeat padding-box;
+	box-shadow: 0px 3px 6px #39376529;
+}
+
+.spread-logo .logo-img .hex2 {
+	top: 33px;
+	left: 29px;	
+	background: #EEBE53 0% 0% no-repeat padding-box;
+	box-shadow: 0px 3px 6px #EEBE53;
+}
+
+.spread-logo .logo-img .hex3 {
+	top: 50px;
+	left: 0px;
+	background: #3A3668 0% 0% no-repeat padding-box;
+	box-shadow: 0px 3px 6px #39376529;
+}
+
+.spread-logo .logo-img .hex4 {
+	top: 50px;
+	left: 19px;
+	background: #3A3668 0% 0% no-repeat padding-box;
+	box-shadow: 0px 3px 6px #39376529;
+}
+
+/********************/
+/* Collapsible tabs */
+/********************/
+
+.tab > .title {
+    font-weight: bold;
+    display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-bottom: 1px solid #E2E2EA;
+	border-top: 1px solid #E2E2EA;
+    padding: 15px 5px 15px 5px;
+	color: #3A3668;
+	cursor: pointer;
+}
+
+.tab > .title > .text {
+	display: flex;
+	align-items: center;
+}
+.tab > .title img {
+	margin-right: 10px;
+}
+
+.tab-body {
+    overflow: hidden;
+	padding: 17px;   
+}
+
+.tab-body.open {
+	height: 100%;
+}
+
+.tab-body.collapsed {
+	height: 0;
+	padding: 0;
+}
+
+.tab .badge {
+	border: 1px solid;
+	padding: 3px;
+	border-radius: 5px;
+	font-size: 10px;
+	background-color: #FBFCFE;
+}

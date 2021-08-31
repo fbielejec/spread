@@ -10,6 +10,8 @@
             [ui.config :as config]
             [ui.documentation.page]
             [ui.events]
+            [shared.subs]
+            [shared.events]
             [ui.home.page]
             [ui.logging :as logging]
             [ui.new-analysis.page]
