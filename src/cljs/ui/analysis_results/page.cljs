@@ -5,7 +5,7 @@
             [reagent-material-ui.core.accordion-summary :refer [accordion-summary]]
             [reagent-material-ui.core.app-bar :refer [app-bar]]
             [reagent-material-ui.core.box :refer [box]]
-            [reagent-material-ui.core.button :refer [button]]
+            [shared.components :refer [button]]
             [reagent-material-ui.core.divider :refer [divider]]
             [reagent-material-ui.core.grid :refer [grid]]
             [reagent-material-ui.core.tab :refer [tab]]
@@ -29,51 +29,9 @@
             [ui.router.subs :as router.subs]
             [ui.subscriptions :as subs]
             [ui.time :as time]
-            [ui.utils :refer [<sub >evt]]))
+            [ui.utils :refer [<sub >evt]]
+            [tick.alpha.api :as t]))
 
-(def use-styles (styles/make-styles (fn [_]
-                                      {:centered {:display         :flex
-                                                  :justify-content :center
-                                                  :align-items     :center}
-
-                                       :header {:font  "normal normal 900 24px/28px Roboto"
-                                                :color "#3A3668"}
-
-                                       :error-accordion {:border        "1px solid #B20707E7"
-                                                         :border-radius "20px"}
-
-                                       :error-header {:text-align  "left"
-                                                      :font        "normal normal medium 16px/19px Roboto"
-                                                      :font-weight :bold
-                                                      :color       "#B20707"}
-
-                                       :app-bar {:background    "#FFFFFF"
-                                                 :box-shadow    :none
-                                                 :border-bottom "1px solid #DEDEE7"}
-
-                                       :box {:display        :flex
-                                             :flex-direction :row}
-
-                                       :input-label {:font        "normal normal medium 16px/19px Roboto"
-                                                     :color       "#3A3668"
-                                                     :font-weight :bold}
-
-                                       :copy-button {:height         38
-                                                     :text-transform :none
-                                                     :border-radius  "8px"}
-
-                                       :analysis-viewer-url {:height        38
-                                                             :min-width     500
-                                                             :border-radius "8px"
-                                                             :font          "normal normal medium 14px/16px Roboto"
-                                                             :color         "#3A3668"}
-
-                                       :divider {:width "100%"}
-
-                                       :scroll-list {:overflow   :auto
-                                                     :max-height 300}
-
-                                       })))
 
 (defn data [{:keys [of-type status error] :as analysis} classes]
   [grid {:container true
@@ -146,112 +104,39 @@
         viewer-host (:analysis-viewer-url config)
         {:keys [viewer-url-params]} (:analysis analysis)
         viewer-url (str viewer-host "/" viewer-url-params)]
-    [grid {:container true
-           :direction :column}
-     [grid {:container true
-            :item      true
-            :direction :row
-            :xs        12 :xm 12}
-      [grid {:item true
-             :xs   6 :xm 6}
-       [typography {:class-name (:input-label classes)} "Visualisations on a geographical map"]]
-      [grid {:item true
-             :xs   6 :xm 6}]]
-     [grid {:container true
-            :item      true
-            :direction :row
-            :xs        12 :xm 12}
-      [grid {:item true
-             :xs   6 :xm 6}
-       [:a {:href viewer-url} viewer-url]]
-      [grid {:item true
-             :xs   6 :xm 6}
-       [button {:variant   "contained"
-                :color     "primary"
-                :size      "large" 
-                :className (:copy-button classes)
-                :on-click  #(js/navigator.clipboard.writeText viewer-url)}
-        "Copy"]]]
-
-     ;; bayes factors table
-     (when bayes-factors
-       [:<>
-        [box {:paddingTop    10
-              :paddingBottom 10}
-         [divider {:variant    "fullWidth"
-                   :class-name (:divider classes)}]]
-        [grid {:container true
-               :item      true
-               :direction :row
-               :xs        12 :xm 12}
-         [grid {:item true
-                :xs   6 :xm 6}
-          [typography {:class-name (:input-label classes)} "Support values"]]
-         [grid {:item true
-                :xs   6 :xm 6}
-          [button {:variant   "contained"
-                   :color     "primary"
-                   :size      "large"
-                   :className (:export-button classes)
-                   :on-click  #(prn "TODO")}
-           "Export to CSV"]]]
-
-        [grid {:container true
-               :item      true
-               :direction :row
-               :xs        12 :xm 12}
-         ;; TODO : table with sorting https://material-ui.com/components/tables/#sorting-amp-selecting
-         [table-container {:class-name (:scroll-list classes)}
-          [table {:class-name (:table classes)}
-           [table-head
-            [table-row
-             [table-cell {:align :right} "From"]
-             [table-cell {:align :right} "To"]
-             [table-cell {:align :right} "Bayes Factor"]
-             [table-cell {:align :right} "Posterior probability"]]]
-           [table-body
-            (doall
-             (map (fn [{:keys [from to bayes-factor posterior-probability]}]
-                    [table-row {:key (str from to)}
-                     [table-cell {:align :right} from]
-                     [table-cell {:align :right} to]
-                     [table-cell {:align :right} bayes-factor]
-                     [table-cell {:align :right} posterior-probability]])
-                  bayes-factors))]]]]])
-
-     ;; buttons
-     [box {:paddingTop    10
-           :paddingBottom 10}
-      [divider {:variant    "fullWidth"
-                :class-name (:divider classes)}]]
-     [grid {:container true
-            :item      true
-            :direction :row
-            :xs        12 :xm 12}
-      [grid {:item true
-             :xs   4 :xm 4}
-       [button {:variant   :contained
-                :color     "primary"
-                :size      :large
-                :className (:start-button classes)
-                :on-click  #(prn "TODO")}
-        "Edit"]]
-      [grid {:item true
-             :xs   4 :xm 4}
-       [button {:variant   :contained
-                :color     "primary"
-                :size      :large
-                :className (:start-button classes)
-                :on-click  #(prn "TODO")}
-        "Copy settings"]]
-      [grid {:item true
-             :xs   4 :xm 4}
-       [button {:variant   :contained
-                :color     "primary"
-                :size      :large
-                :className (:start-button classes)
-                :on-click  #(prn "TODO")}
-        "Delete"]]]]))
+    [:div.results
+     [:section.visualization
+      [:h4 "Visualisations on a geographical map"]
+      [:div
+       [:span.link viewer-url]
+       [button {:text "Copy"
+                :on-click #(js/navigator.clipboard.writeText viewer-url)
+                :class "golden"}]]]
+     [:section.table
+      (when bayes-factors
+            [:div.export
+             [:span "Support values"]
+             [button {:text "Export To CSV"
+                      :on-click #()
+                      :class "secondary"}]]
+            ;; TODO : table with sorting https://material-ui.com/components/tables/#sorting-amp-selecting
+            [table-container {:class-name (:scroll-list classes)}
+             [table {:class-name (:table classes)}
+              [table-head
+               [table-row
+                [table-cell {:align :right} "From"]
+                [table-cell {:align :right} "To"]
+                [table-cell {:align :right} "Bayes Factor"]
+                [table-cell {:align :right} "Posterior probability"]]]
+              [table-body
+               (doall
+                (map (fn [{:keys [from to bayes-factor posterior-probability]}]
+                       [table-row {:key (str from to)}
+                        [table-cell {:align :right} from]
+                        [table-cell {:align :right} to]
+                        [table-cell {:align :right} bayes-factor]
+                        [table-cell {:align :right} posterior-probability]])
+                     bayes-factors))]]])]]))
 
 (defn tab-pane [{:keys [id]}]
   (let [analysis (re-frame/subscribe [::subs/analysis-results id])]
@@ -271,17 +156,55 @@
          "results" [results @analysis classes]
          [results @analysis classes])])))
 
+(def type->label {"CONTINUOUS_TREE"       ["Continuous:" "MCC tree"]
+                  "DISCRETE_TREE"         ["Discrete:" "MCC tree"]
+                  "BAYES_FACTOR_ANALYSIS" ["Discrete:" "Bayes factor rates"]})
+
+(defn analysis-header [{:keys [readable-name of-type created-on]}]
+  (let [[label text] (type->label of-type)
+        date (time/format-date-str created-on) 
+        time (time/format-time-str created-on)]
+    [:div.analysis-header {:style {:grid-area "header"}}
+     [:div.readable-name {:style {:grid-area "readable-name"}} readable-name]
+     [:div.sub-name {:style {:grid-area "sub-name"}}
+      [:span.label label] [:span.text text]]
+     [:div.datetime {:style {:grid-area "datetime"}}
+      [:span.date date] [:span.time time]]]))
+
+(defn analysis-body [active-page]  
+  (let [{{:keys [id] :as query} :query} active-page            
+        active-tab (or (:tab query) "results")]
+    [:div.body {:style {:grid-area "body"}}     
+     [tab-pane {:id         id                
+                :active-tab active-tab}]]))
+
+(defn footer []
+  [:div.footer-wrapper
+   [:div.footer {:style {:grid-area "footer"}}
+    [button {:text "Edit"
+             :on-click #()
+             :class "golden"}]
+    [button {:text "Copy settings"
+             :on-click #()
+             :class "secondary"}]
+    [button {:text "Delete"
+             :on-click #()
+             :class "danger"}]]])
+
 (defmethod page :route/analysis-results []
   (let [active-page (re-frame/subscribe [::router.subs/active-page])]
     (fn []
       (let [{{:keys [id] :as query} :query}                         @active-page
-            {:keys [readable-name of-type created-on]} (<sub [::subs/analysis-results id])
-            active-tab                                              (or (:tab query) "results")
-            classes                                                 (use-styles)]
+            {:keys [readable-name of-type created-on] :as analysis} (<sub [::subs/analysis-results id])
+            active-tab                                              (or (:tab query) "results")]
         (if-not readable-name
           [:div "Loading..." ]
           [app-container
-           [grid
+           [:div.analysis-results
+            [analysis-header analysis]
+            [analysis-body @active-page]
+            [footer]]
+           #_[grid
             [app-bar {:position   "static"
                       :color      :transparent
                       :class-name (:app-bar classes)}

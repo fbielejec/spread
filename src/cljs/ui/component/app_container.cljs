@@ -42,7 +42,7 @@
       (let [badge-text (cond
                          (= status "ERROR") "Error"
                          new?               "New")]
-        [:div.completed-menu-item {:on-click #(dispatch-n [[:router/navigate :route/analysis-results nil {:id id :tab "results"}]
+        [:div.completed-menu-item.clickable {:on-click #(dispatch-n [[:router/navigate :route/analysis-results nil {:id id :tab "results"}]
                                                            (when new?
                                                              [:graphql/query {:query
                                                                               "mutation TouchAnalysisMutation($analysisId: ID!) {

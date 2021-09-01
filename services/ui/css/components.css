@@ -137,3 +137,13 @@
     color: #3428CA; 
 }
 
+.button.golden {
+	color: #3A3668;
+	background: #EEBE53;    
+}
+
+.button.danger {
+	color: #B20707;
+	background: white;
+	border: 1px solid #B20707;
+}

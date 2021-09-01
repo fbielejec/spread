@@ -194,3 +194,109 @@ li {
 .home-page section {
 	width: 300px;
 }
+
+/* Analysis results page */
+
+.analysis-results {
+    height: 100%;
+	display: grid;
+	grid-template-rows: 120px 1fr 120px;
+	grid-template-columns: 100%;
+	grid-template-areas:
+		"header"
+		"body"
+		"footer"
+}
+
+.analysis-results .analysis-header {
+	display: grid;
+	grid-template-columns: 50% 50%;
+	grid-template-rows: 50% 50%;
+	grid-template-areas:
+		"readable-name readable-name"
+		"sub-name      datetime";
+	grid-row-gap: 5px;
+	width: 300px;
+	margin: auto;
+	color: #3A3668;
+}
+
+.analysis-results .analysis-header .readable-name {
+	text-align: center;
+	font-size: 20px;
+	font-weight: bold;    
+}
+
+.analysis-results .analysis-header .datetime {
+	text-align: right;
+}
+
+.analysis-results .analysis-header .text,.time {
+    color: #757295;
+	margin-left: 5px;
+}
+
+.analysis-results .body {
+    border-top: 1px solid #DEDEE8;
+	border-bottom: 1px solid #DEDEE8;
+}
+
+.analysis-results .results {
+    display: flex;
+	align-items: center;
+	flex-direction: column;
+	width: 100%;
+    color: #3A3668;
+}
+
+.analysis-results .results .visualization {
+    width: 800px;
+}
+
+.analysis-results .results .visualization > div {
+    display: flex;
+	justify-content: space-between;
+}
+
+.analysis-results .results .visualization .link {
+    padding: 5px;
+	border-radius: 10px;
+	background-color: #FBFCFE;
+	border: 1px solid #ECEFF7;
+	width: 600px;
+}
+
+.analysis-results .results section.visualization .button {
+	width: 150px;
+}
+
+.analysis-results .results section.table {
+	width: 800px;
+	margin-top: 30px;
+}
+
+.analysis-results .results section.table .export {
+    display: flex;
+	justify-content: space-between;
+}
+
+.analysis-results .results section.table .export .button {
+	width: 150px;
+}
+
+.analysis-results .footer-wrapper {
+	display: flex;
+    justify-content: center;	
+}
+
+.analysis-results .footer {
+	display: flex;
+    justify-content: space-around;
+	align-items: center;
+	width: 800px;
+}
+
+.analysis-results .footer .button {
+	width:250px;
+	height: 40px;
+}
