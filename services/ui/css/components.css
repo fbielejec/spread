@@ -147,3 +147,27 @@
 	background: white;
 	border: 1px solid #B20707;
 }
+
+/* Labeled fields */
+
+.labeled-field {
+	position: relative;
+}
+
+.labeled-field .label {
+	position:absolute;
+	top: -10px;
+    left: 10px;
+	font-size: 10px;
+	background-color: white;
+	color: #908DA9;
+}
+.labeled-field .text {
+	display: inline-block;
+	padding: 8px;
+	border-radius: 10px;
+	background-color: #FBFCFE;
+	border: 1px solid #ECEFF7;
+	width: 300px;
+	height: 38px;
+}

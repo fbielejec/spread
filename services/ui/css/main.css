@@ -284,6 +284,63 @@ li {
 	width: 150px;
 }
 
+.analysis-results .data {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding-top: 20px;
+}
+.analysis-results .data .error {
+	border: 1px solid #B20707;
+	border-radius: 10px;
+	padding: 20px;
+	width: 800px;
+	display: flex;
+}
+
+.analysis-results .data .error .tab {
+	width: 200px;
+}
+
+.analysis-results .data .error > div {
+	display: inline-block;
+	margin-left: 10px;
+}
+
+.analysis-results .data .error .tab .title {
+	border: none;
+	padding: 0;
+}
+
+.analysis-results .data .error .tab-body {
+	border: none;
+}
+
+.analysis-results .data .error > div > .title {
+	color: #B20707;
+	font-weight: bold;    
+}
+
+.analysis-results .data .field-table {
+	display: flex;
+	flex-direction: column;
+}
+
+.analysis-results .data .field-line {
+    display: flex;
+    justify-content: space-between;
+	width: 700px;
+}
+
+.analysis-results .data .field-card {
+    display: flex;
+	height: 100px;
+	flex-direction: column;
+    justify-content: space-between;
+}
+
+
 .analysis-results .footer-wrapper {
 	display: flex;
     justify-content: center;	

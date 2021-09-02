@@ -6,7 +6,7 @@
     [:div.tab 
      [:div.title {:on-click #(dispatch [:collapsible-tabs/toggle id])}      
       [:span.text
-       [:img {:src icon}]
+       (when icon [:img {:src icon}])
        title]
       (when (and badge-text badge-color)
         [:span.badge {:style {:color badge-color
@@ -27,3 +27,8 @@
                           :on-click on-click}
    [:img {:src icon}]
    [:span text]])
+
+(defn labeled-field [{:keys [label text style]}]
+  [:div.labeled-field {:style style}
+   [:span.label label]
+   [:span.text text]])
