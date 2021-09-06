@@ -22,9 +22,12 @@
     [:div.hex.hex1] [:div.hex.hex2] [:div.hex.hex3] [:div.hex.hex4]]
    [:span.text "spread"]])
 
-(defn button [{:keys [text on-click icon class]}]
-  [:div.button.clickable {:class class
-                          :on-click on-click}
+(defn button [{:keys [text on-click icon class disabled?]}]
+  [:div.button.clickable {:class (cond-> class
+                                   disabled? (str " disabled"))
+                          :on-click (if disabled?
+                                      identity
+                                      on-click)}
    [:img {:src icon}]
    [:span text]])
 

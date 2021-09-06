@@ -148,6 +148,13 @@
 	border: 1px solid #B20707;
 }
 
+.button.disabled {
+	background: #eee;    
+	color: #333;
+	border-color: #333;
+	opacity: 0.4;
+}
+
 /* Labeled fields */
 
 .labeled-field {

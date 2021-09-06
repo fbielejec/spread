@@ -18,6 +18,25 @@ li {
 	cursor: pointer;
 }
 
+.field-table {
+	display: flex;
+	flex-direction: column;
+}
+
+.field-line {
+    display: flex;
+    justify-content: space-between;
+	width: 700px;
+}
+
+.field-card {
+    display: flex;
+	height: 100px;
+	flex-direction: column;
+    justify-content: space-between;
+}
+
+
 /********************************/
 /* Application container layout */
 /********************************/
@@ -195,6 +214,149 @@ li {
 	width: 300px;
 }
 
+/* Run new analysis */
+
+.run-new-analysis {
+	height: 100%;
+	display: grid;
+	grid-template-rows: 120px 1fr;
+	grid-template-columns: 100%;
+	grid-template-areas:
+		"header"
+		"body"        
+}
+
+.run-new-analysis .header {
+	margin: auto;
+	color: #3A3668;
+}
+.run-new-analysis .body {
+    border-top: 1px solid #DEDEE8;	
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+    color: #3A3668;
+}
+
+.run-new-analysis .run-new-discrete {
+	display: grid;
+	grid-template-rows: 1fr 120px;
+	grid-template-columns: 100%;
+	grid-template-areas:
+		"data"
+		"footer";
+	height: 100%;
+	width: 100%;
+}
+
+.run-new-analysis .run-new-discrete .data {
+	width: 800px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.run-new-analysis .run-new-discrete .load-tree-file,.load-locations-file  {
+	display:flex;    
+}
+
+.run-new-discrete .file-upload-button {
+	width: 200px;
+}
+
+.run-new-discrete p.doc {
+    display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	margin-left: 10px;
+	margin-bottom: 0px;
+}
+
+.run-new-analysis .run-new-continuous {
+	display: grid;
+	grid-template-rows: 1fr 120px;
+	grid-template-columns: 100%;
+	grid-template-areas:
+		"data"
+		"footer";
+	height: 100%;
+	width: 100%;
+}
+
+.run-new-analysis .run-new-continuous .data {
+	width: 800px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.run-new-analysis .run-new-continuous .load-tree-file,.load-trees-file  {
+	display:flex;    
+}
+
+.run-new-continuous .file-upload-button {
+	width: 200px;
+}
+
+.run-new-continuous p.doc {
+    display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	margin-left: 10px;
+	margin-bottom: 0px;
+}
+
+.run-new-analysis .run-new-bayes {
+	display: grid;
+	grid-template-rows: 1fr 120px;
+	grid-template-columns: 100%;
+	grid-template-areas:
+		"data"
+		"footer";
+	height: 100%;
+	width: 100%;
+}
+
+.run-new-analysis .run-new-bayes .data {
+	width: 800px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.run-new-analysis .run-new-bayes .load-log-file,.load-locations-file  {
+	display:flex;    
+}
+
+.run-new-bayes .file-upload-button {
+	width: 200px;
+}
+
+.run-new-bayes p.doc {
+    display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	margin-left: 10px;
+	margin-bottom: 0px;
+}
+
+.run-new-analysis .controls-wrapper {
+	display: flex;
+    justify-content: center;
+	border-top: 1px solid #DEDEE8;
+}
+
+.run-new-analysis .controls {
+	display: flex;
+    justify-content: space-around;
+	align-items: center;
+	width: 800px;
+}
+
+.run-new-analysis .controls .button {
+	width:250px;
+	height: 40px;
+}
+
+
+
 /* Analysis results page */
 
 .analysis-results {
@@ -321,25 +483,6 @@ li {
 	color: #B20707;
 	font-weight: bold;    
 }
-
-.analysis-results .data .field-table {
-	display: flex;
-	flex-direction: column;
-}
-
-.analysis-results .data .field-line {
-    display: flex;
-    justify-content: space-between;
-	width: 700px;
-}
-
-.analysis-results .data .field-card {
-    display: flex;
-	height: 100px;
-	flex-direction: column;
-    justify-content: space-between;
-}
-
 
 .analysis-results .footer-wrapper {
 	display: flex;

@@ -1,5 +1,5 @@
 (ns ui.component.button
-  (:require [reagent-material-ui.core.button :refer [button]]
+  (:require [shared.components :refer [button]]
             [reagent.core :as reagent]
             [ui.component.icon :refer [arg->icon]]))
 
@@ -18,14 +18,12 @@
 (defn button-file-upload
   [{:keys [id
            disabled?
-           icon
            label
-           class-name
            file-accept-predicate
            on-file-accepted
            on-file-rejected]
     :or   {file-accept-predicate (constantly true)}}]
-  [:<>
+  [:div.file-upload-button
    [:input {:type      :file
             :disabled  disabled?
             :id        (or id "file-upload-button")
@@ -43,8 +41,6 @@
                                                  :on-file-accepted      on-file-accepted
                                                  :on-file-rejected      on-file-rejected})))}]
    [:label {:for (or id "file-upload-button")}
-    [button {:class-name class-name
-             :disabled   disabled?
-             :variant    "contained" :color "primary" :component "span"
-             :startIcon  (reagent/as-element [:img {:src (arg->icon icon)}])}
-     label]]])
+    [button {:text label
+             :icon "icons/icn_upload_white.svg"             
+             :class "primary"}]]])
