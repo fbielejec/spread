@@ -170,6 +170,10 @@ button {
 	justify-content: space-between;
 }
 
+.attribute-color-chooser select {
+	max-width: 150px;
+}
+
 /*******************/
 /* Layers settings */
 /*******************/

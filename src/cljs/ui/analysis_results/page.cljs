@@ -33,7 +33,7 @@
 
 (defn data [{:keys [of-type status error] :as analysis}]
   [:div.data   
-   (when true #_error
+   (when error
          [:div.error
           [:img {:src "icons/icn_error.svg"}]
           [:div

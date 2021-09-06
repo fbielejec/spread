@@ -29,8 +29,8 @@
 
 (defn ^:dev/after-load start []
   (js/console.log "Starting..." )
-  (fsa/connect {:tap-name "analysis-viewer"})
-  (fsa/trace-ref re-frame.db/app-db {:ref-name "re-frame-db"
+  #_(fsa/connect {:tap-name "analysis-viewer"})
+  #_(fsa/trace-ref re-frame.db/app-db {:ref-name "re-frame-db"
                                      :ignore-keys [:maps/data ;; this one is super big
                                                    :map/state ;; this one changes a lot when zooming, dragging, etc
                                                    :animation/frame-timestamp ;; this one changes a lot

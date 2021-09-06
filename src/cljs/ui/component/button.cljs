@@ -35,7 +35,7 @@
                                                :type     (if (empty? (.-type file))
                                                            "text/plain charset=utf-8"
                                                            (.-type file))
-                                               :size     (.-size file)}]
+                                               :size     (.-size file)}]                           
                            (file-select-handler {:file-with-meta        file-with-meta
                                                  :file-accept-predicate file-accept-predicate
                                                  :on-file-accepted      on-file-accepted

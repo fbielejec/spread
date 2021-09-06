@@ -226,6 +226,11 @@ li {
 		"body"        
 }
 
+.run-new-analysis .upload-spinner {
+	display: flex;
+	justify-content: center;
+}
+
 .run-new-analysis .header {
 	margin: auto;
 	color: #3A3668;
