@@ -1,13 +1,9 @@
 (ns ui.new-analysis.discrete-mcc-tree
-  (:require [re-frame.core :as re-frame]
-            [reagent-material-ui.core.box :refer [box]]
-            [shared.components :refer [button]]
+  (:require [re-frame.core :as re-frame]                        
             [reagent-material-ui.core.circular-progress :refer [circular-progress]]
-            [reagent-material-ui.core.divider :refer [divider]]
-            [reagent-material-ui.core.grid :refer [grid]]
             [reagent-material-ui.core.linear-progress :refer [linear-progress]]
             [reagent-material-ui.core.text-field :refer [text-field]]
-            [reagent-material-ui.core.typography :refer [typography]]
+            [shared.components :refer [button]]
             [ui.component.button :refer [button-file-upload]]
             [ui.component.date-picker :refer [date-picker]]
             [ui.component.input :refer [amount-input loaded-input]]
@@ -45,24 +41,23 @@
              :class "danger"
              :disabled? disabled?}]]])
 
-(defn discrete-mcc-tree [classes]
+(defn discrete-mcc-tree []
   (let [discrete-mcc-tree (re-frame/subscribe [::subs/discrete-mcc-tree])
         field-errors      (re-frame/subscribe [::subs/discrete-mcc-tree-field-errors])]
     (fn []
-      (let [{:keys [id
-                    tree-file tree-file-upload-progress
-                    locations-file locations-file-url
+      (let [{:keys [tree-file tree-file-upload-progress
+                    locations-file 
                     ;; locations-file-upload-progress
                     readable-name
                     locations-attribute
                     most-recent-sampling-date
                     time-scale-multiplier
                     attribute-names]
-             :or   {locations-attribute       (first attribute-names)
-                    most-recent-sampling-date (time/now)
+             :or   {most-recent-sampling-date (time/now)
                     time-scale-multiplier     1}
              :as analysis}
             @discrete-mcc-tree
+            locations-attribute       (or locations-attribute (first attribute-names))
             controls-disabled? (or (not attribute-names) (not locations-file))]
         [:div.run-new-discrete
          [:div.data {:style {:grid-area "data"}}
@@ -109,8 +104,7 @@
                             :on-change (fn [_ value] (>evt [:discrete-mcc-tree/set-readable-name value]))}]]
               [:div.field-card
                [:h4 "Select location attributes"]
-               [attributes-select {:classes   classes
-                                   :id        "select-locations-attribute"
+               [attributes-select {:id        "select-locations-attribute"
                                    :value     locations-attribute
                                    :options   attribute-names
                                    :label     "Locations attribute"
@@ -119,8 +113,7 @@
              [:div.field-line             
               [:div.field-card
                [:h4 "Most recent sampling date"]
-               [date-picker {:wrapperClassName (:date-picker classes)
-                             :date-format      time/date-format
+               [date-picker {:date-format      time/date-format
                              :on-change        #(>evt [:discrete-mcc-tree/set-most-recent-sampling-date %])
                              :selected         most-recent-sampling-date}]]
               [:div.field-card

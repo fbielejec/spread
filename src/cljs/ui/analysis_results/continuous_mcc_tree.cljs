@@ -1,8 +1,5 @@
 (ns ui.analysis-results.continuous-mcc-tree
-  (:require [reagent-material-ui.core.grid :refer [grid]]
-            [reagent-material-ui.core.text-field :refer [text-field]]
-            [reagent-material-ui.core.typography :refer [typography]]
-            [shared.components :refer [labeled-field]]))
+  (:require [shared.components :refer [labeled-field]]))
 
 (defn continuous-mcc-tree [{:keys [readable-name x-coordinate-attribute-name y-coordinate-attribute-name
                                    most-recent-sampling-date

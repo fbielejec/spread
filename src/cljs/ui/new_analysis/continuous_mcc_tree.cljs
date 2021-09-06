@@ -1,13 +1,9 @@
 (ns ui.new-analysis.continuous-mcc-tree
   (:require [re-frame.core :as re-frame]
-            [reagent-material-ui.core.box :refer [box]]
-            [shared.components :refer [button]]
             [reagent-material-ui.core.circular-progress :refer [circular-progress]]
-            [reagent-material-ui.core.divider :refer [divider]]
-            [reagent-material-ui.core.grid :refer [grid]]
             [reagent-material-ui.core.linear-progress :refer [linear-progress]]
             [reagent-material-ui.core.text-field :refer [text-field]]
-            [reagent-material-ui.core.typography :refer [typography]]
+            [shared.components :refer [button]]
             [ui.component.button :refer [button-file-upload]]
             [ui.component.date-picker :refer [date-picker]]
             [ui.component.input :refer [amount-input loaded-input]]
@@ -47,14 +43,13 @@
              :class "danger"
              :disabled? disabled?}]]])
 
-(defn continuous-mcc-tree [classes]
+(defn continuous-mcc-tree []
   (let [continuous-mcc-tree (re-frame/subscribe [::subs/continuous-mcc-tree])
         field-errors        (re-frame/subscribe [::subs/continuous-mcc-tree-field-errors])]
     (fn []
-      (let [{:keys [id
-                    readable-name
+      (let [{:keys [readable-name
                     tree-file tree-file-upload-progress
-                    trees-file trees-file-upload-progress
+                    trees-file
                     y-coordinate x-coordinate
                     most-recent-sampling-date
                     time-scale-multiplier
@@ -113,8 +108,7 @@
              [:div.field-line             
               [:div.field-card 
                [:h4 "Select x coordinate"]
-               [attributes-select {:classes   classes
-                                   :id        "select-longitude"
+               [attributes-select {:id        "select-longitude"
                                    :value     x-coordinate
                                    :options   attribute-names
                                    :label     "Longitude"
@@ -122,8 +116,7 @@
                                                 (>evt [:continuous-mcc-tree/set-x-coordinate value]))}]]
               [:div.field-card 
                [:h4 "Select y coordinate"]
-               [attributes-select {:classes   classes
-                                   :id        "select-latitude"
+               [attributes-select {:id        "select-latitude"
                                    :value     y-coordinate
                                    :options   attribute-names
                                    :label     "Latitude"
@@ -132,8 +125,7 @@
              [:div.field-line             
               [:div.field-card
                [:h4 "Most recent sampling date"]
-               [date-picker {:wrapperClassName (:date-picker classes)
-                             :date-format      time/date-format
+               [date-picker {:date-format      time/date-format
                              :on-change        #(>evt [:continuous-mcc-tree/set-most-recent-sampling-date %])
                              :selected         most-recent-sampling-date}]]
               [:div.field-card

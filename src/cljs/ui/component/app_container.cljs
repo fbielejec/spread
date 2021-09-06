@@ -1,42 +1,24 @@
 (ns ui.component.app-container
   (:require ["react" :as react]
             [re-frame.core :as re-frame]
-            [reagent-material-ui.core.accordion #_:refer #_[accordion]]
-            [reagent-material-ui.core.accordion-details :refer [accordion-details]]
-            [reagent-material-ui.core.accordion-summary :refer [accordion-summary]]
-            [reagent-material-ui.core.app-bar :refer [app-bar]]
-            [reagent-material-ui.core.avatar :refer [avatar]]
-            [reagent-material-ui.core.box :refer [box]]
-            [shared.components :refer [button]]
-            [reagent-material-ui.core.card :refer [card]]
-            [reagent-material-ui.core.card-content :refer [card-content]]
-            [reagent-material-ui.core.chip :refer [chip]]
-            [reagent-material-ui.core.divider :refer [divider]]
-            [reagent-material-ui.core.grid :refer [grid]]
             [reagent-material-ui.core.icon-button :refer [icon-button]]
             [reagent-material-ui.core.linear-progress :refer [linear-progress]]
-            [reagent-material-ui.core.list :refer [list]]
-            [reagent-material-ui.core.list-item :refer [list-item]]
-            [reagent-material-ui.core.list-item-text :refer [list-item-text]]
             [reagent-material-ui.core.menu :refer [menu]]
             [reagent-material-ui.core.menu-item :refer [menu-item]]
-            [reagent-material-ui.core.toolbar :refer [toolbar]]
             [reagent-material-ui.core.typography :refer [typography]]
-            [reagent-material-ui.icons.search :refer [search]]
-            [reagent-material-ui.styles :as styles]
             [reagent.core :as reagent]
-            [ui.component.icon :refer [arg->icon icons]]
+            [shared.components :refer [collapsible-tab spread-logo button]]
+            [ui.component.icon :refer [icons]]
             [ui.component.search :refer [search-bar]]
             [ui.format :refer [format-percentage]]
             [ui.subscriptions :as subs]
-            [ui.utils :as ui-utils :refer [>evt dispatch-n]]
-            [shared.components :refer [collapsible-tab spread-logo]]))
+            [ui.utils :as ui-utils :refer [>evt dispatch-n]]))
 
 (def type->label {"CONTINUOUS_TREE"       "Continuous: MCC tree"
                   "DISCRETE_TREE"         "Discrete: MCC tree"
                   "BAYES_FACTOR_ANALYSIS" "Discrete: Bayes Factor Rates"})
 
-(defn completed-menu-item [{:keys [id readable-name of-type status new?]}]
+(defn completed-menu-item [_]
   (let [menu-open? (reagent/atom false)]
     (fn [{:keys [id readable-name of-type status new?]}]      
       (let [badge-text (cond
@@ -143,7 +125,7 @@
                                               [:span.text sub-label]])
                                            items)]}]))
 
-(defn main-menu [classes]
+(defn main-menu []
   [:div.app-sidebar.panel
    [:div.collapsible-tabs
     [run-new]

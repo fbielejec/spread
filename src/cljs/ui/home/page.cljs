@@ -1,17 +1,8 @@
 (ns ui.home.page
-  (:require [reagent-material-ui.core.avatar :refer [avatar]]
-            [reagent-material-ui.core.box :refer [box]]
-            [shared.components :refer [button]]
-            [reagent-material-ui.core.divider :refer [divider]]
-            [reagent-material-ui.core.grid :refer [grid]]
-            [reagent-material-ui.core.typography :refer [typography]]
-            [reagent-material-ui.styles :as styles]
-            [reagent.core :as reagent]
+  (:require [shared.components :refer [button spread-logo]]
             [ui.component.app-container :refer [app-container]]
-            [ui.component.icon :refer [arg->icon icons]]
             [ui.router.component :refer [page]]
-            [ui.utils :as ui-utils :refer [>evt]]
-            [shared.components :refer [spread-logo]]))
+            [ui.utils :as ui-utils :refer [>evt]]))
 
 (defmethod page :route/home []
   (fn []

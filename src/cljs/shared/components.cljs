@@ -1,6 +1,5 @@
 (ns shared.components
-  (:require [re-frame.core :refer [subscribe dispatch]]
-            [reagent.core :as reagent]))
+  (:require [re-frame.core :refer [subscribe dispatch]]))
 
 (defn collapsible-tab [{:keys [id title icon badge-text badge-color child]}]
   (let [open? @(subscribe [:collapsible-tabs/open? id])]

@@ -1,37 +1,24 @@
 (ns ui.analysis-results.page
   (:require [re-frame.core :as re-frame]
-            [reagent-material-ui.core.accordion :refer [accordion]]
-            [reagent-material-ui.core.accordion-details :refer [accordion-details]]
-            [reagent-material-ui.core.accordion-summary :refer [accordion-summary]]
-            [reagent-material-ui.core.app-bar :refer [app-bar]]
-            [reagent-material-ui.core.box :refer [box]]
-            [shared.components :refer [button collapsible-tab tabs]]
-            [reagent-material-ui.core.divider :refer [divider]]
-            [reagent-material-ui.core.grid :refer [grid]]
             [reagent-material-ui.core.table :refer [table]]
             [reagent-material-ui.core.table-body :refer [table-body]]
             [reagent-material-ui.core.table-cell :refer [table-cell]]
             [reagent-material-ui.core.table-container :refer [table-container]]
             [reagent-material-ui.core.table-head :refer [table-head]]
-            [reagent-material-ui.core.table-row :refer [table-row]]
-            [reagent-material-ui.core.toolbar :refer [toolbar]]
-            [reagent-material-ui.core.typography :refer [typography]]
-            [reagent-material-ui.styles :as styles]
-            [reagent.core :as reagent]
+            [reagent-material-ui.core.table-row :refer [table-row]]           
+            [shared.components :refer [button collapsible-tab tabs]]            
             [ui.analysis-results.continuous-mcc-tree :refer [continuous-mcc-tree]]
             [ui.analysis-results.discrete-mcc-tree :refer [discrete-mcc-tree]]
             [ui.analysis-results.discrete-rates :refer [discrete-rates]]
             [ui.component.app-container :refer [app-container]]
-            [ui.component.icon :refer [icons]]
             [ui.router.component :refer [page]]
             [ui.router.subs :as router.subs]
             [ui.subscriptions :as subs]
             [ui.time :as time]
-            [ui.utils :refer [<sub >evt]]
-            [tick.alpha.api :as t]))
+            [ui.utils :refer [<sub >evt]]))
 
 
-(defn data [{:keys [of-type status error] :as analysis}]
+(defn data [{:keys [of-type error] :as analysis}]
   [:div.data   
    (when error
          [:div.error
@@ -150,9 +137,8 @@
 (defmethod page :route/analysis-results []
   (let [active-page (re-frame/subscribe [::router.subs/active-page])]
     (fn []
-      (let [{{:keys [id] :as query} :query}                         @active-page
-            {:keys [readable-name of-type created-on] :as analysis} (<sub [::subs/analysis-results id])
-            active-tab                                              (or (:tab query) "results")]
+      (let [{{:keys [id]} :query}                         @active-page
+            {:keys [readable-name] :as analysis} (<sub [::subs/analysis-results id])]
         (if-not readable-name
           [:div "Loading..." ]
           [app-container

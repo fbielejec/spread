@@ -1,14 +1,10 @@
 (ns ui.new-analysis.discrete-rates
-  (:require [re-frame.core :as re-frame]
-            [reagent-material-ui.core.box :refer [box]]
-            [shared.components :refer [button]]
+  (:require [re-frame.core :as re-frame]            
             [reagent-material-ui.core.circular-progress :refer [circular-progress]]
-            [reagent-material-ui.core.divider :refer [divider]]
-            [reagent-material-ui.core.grid :refer [grid]]
             [reagent-material-ui.core.linear-progress :refer [linear-progress]]
             [reagent-material-ui.core.slider :refer [slider]]
             [reagent-material-ui.core.text-field :refer [text-field]]
-            [reagent-material-ui.core.typography :refer [typography]]
+            [shared.components :refer [button]]
             [ui.component.button :refer [button-file-upload]]
             [ui.component.input :refer [loaded-input]]
             [ui.subscriptions :as subs]
@@ -41,23 +37,20 @@
              :class "danger"
              :disabled? disabled?}]]])
 
-(defn discrete-rates [classes]
+(defn discrete-rates []
   (let [bayes-factor (re-frame/subscribe [::subs/bayes-factor])
         field-errors (re-frame/subscribe [::subs/bayes-factor-field-errors])]
     (fn []
-      (let [{:keys [id
-                    log-file
+      (let [{:keys [log-file
                     log-file-upload-progress
                     locations-file
-                    locations-file-url
                     locations-file-upload-progress
                     readable-name
-                    burn-in
-                    upload-status]
+                    burn-in]
              :or   {burn-in 0.1}
              :as analysis}
             @bayes-factor
-            controls-disabled? (not log-file)]
+            controls-disabled? (or @field-errors (not log-file))]
         [:div.run-new-bayes
          [:div.data {:style {:grid-area "data"}}
           [:section.load-log-file

@@ -1,19 +1,13 @@
 (ns ui.new-analysis.page
   (:require [re-frame.core :as re-frame]
-            [reagent-material-ui.core.app-bar :refer [app-bar]]
-            [reagent-material-ui.core.grid :refer [grid]]
-            [reagent-material-ui.core.toolbar :refer [toolbar]]
-            [reagent-material-ui.core.typography :refer [typography]]
-            [reagent-material-ui.styles :as styles]
-            [reagent.core :as reagent]
+            [shared.components :refer [tabs]]
             [ui.component.app-container :refer [app-container]]
             [ui.new-analysis.continuous-mcc-tree :refer [continuous-mcc-tree]]
             [ui.new-analysis.discrete-mcc-tree :refer [discrete-mcc-tree]]
             [ui.new-analysis.discrete-rates :refer [discrete-rates]]
             [ui.router.component :refer [page]]
             [ui.router.subs :as router.subs]
-            [ui.utils :as ui-utils :refer [>evt]]
-            [shared.components :refer [tabs]]))
+            [ui.utils :as ui-utils :refer [>evt]]))
 
 (defn header []
   [:div.header
@@ -28,9 +22,9 @@
                      {:id "discrete-rates"      :label "Discrete"   :sub-label "Rates"}
                      {:id "continuous-mcc-tree" :label "Continuous" :sub-label "MCC tree"}]}]
    (case active-tab
-     "discrete-mcc-tree"   [discrete-mcc-tree {}]
-     "discrete-rates"      [discrete-rates {}]
-     "continuous-mcc-tree" [continuous-mcc-tree {}]
+     "discrete-mcc-tree"   [discrete-mcc-tree]
+     "discrete-rates"      [discrete-rates]
+     "continuous-mcc-tree" [continuous-mcc-tree]
      [discrete-mcc-tree {}])])
 
 

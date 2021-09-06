@@ -1,8 +1,5 @@
 (ns ui.analysis-results.discrete-rates
-  (:require [reagent-material-ui.core.grid :refer [grid]]
-            [reagent-material-ui.core.text-field :refer [text-field]]
-            [reagent-material-ui.core.typography :refer [typography]]
-            [shared.components :refer [labeled-field]]))
+  (:require [shared.components :refer [labeled-field]]))
 
 (defn discrete-rates [{:keys [readable-name burn-in]}]
   [:div.field-table

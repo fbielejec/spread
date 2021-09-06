@@ -1,7 +1,5 @@
 (ns ui.component.button
-  (:require [shared.components :refer [button]]
-            [reagent.core :as reagent]
-            [ui.component.icon :refer [arg->icon]]))
+  (:require [shared.components :refer [button]]))
 
 (defn- file-select-handler [{:keys [file-with-meta file-accept-predicate on-file-accepted on-file-rejected]}]
   (if (file-accept-predicate file-with-meta)
