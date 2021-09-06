@@ -5,17 +5,15 @@
             [reagent-material-ui.core.accordion-summary :refer [accordion-summary]]
             [reagent-material-ui.core.app-bar :refer [app-bar]]
             [reagent-material-ui.core.box :refer [box]]
-            [shared.components :refer [button collapsible-tab]]
+            [shared.components :refer [button collapsible-tab tabs]]
             [reagent-material-ui.core.divider :refer [divider]]
             [reagent-material-ui.core.grid :refer [grid]]
-            [reagent-material-ui.core.tab :refer [tab]]
             [reagent-material-ui.core.table :refer [table]]
             [reagent-material-ui.core.table-body :refer [table-body]]
             [reagent-material-ui.core.table-cell :refer [table-cell]]
             [reagent-material-ui.core.table-container :refer [table-container]]
             [reagent-material-ui.core.table-head :refer [table-head]]
             [reagent-material-ui.core.table-row :refer [table-row]]
-            [reagent-material-ui.core.tabs :refer [tabs]]
             [reagent-material-ui.core.toolbar :refer [toolbar]]
             [reagent-material-ui.core.typography :refer [typography]]
             [reagent-material-ui.styles :as styles]
@@ -101,16 +99,14 @@
 (defn tab-pane [{:keys [id]}]
   (let [analysis (re-frame/subscribe [::subs/analysis-results id])]
     (fn [{:keys [id active-tab classes]}]
-      [:<>
-       [tabs {:value     active-tab
-              :centered  true
-              :classes   {:indicator (:indicator classes)}
-              :on-change (fn [_ value]
-                           (>evt [:router/navigate :route/analysis-results nil {:id id :tab value}]))}
-        [tab {:value "data"
-              :label "Data"}]
-        [tab {:value "results"
-              :label "Analysis results"}]]
+      [:div
+       [:div.tabs-wrapper {:style {:display :flex
+                                   :align-items :center}}
+        [tabs {:on-change (fn [_ value]
+                                (>evt [:router/navigate :route/analysis-results nil {:id id :tab value}]))
+                   :active active-tab 
+                   :tabs-vec [{:id "data"    :label "Data" }
+                              {:id "results" :label "Analysis results"}]}]]
        (case active-tab
          "data"    [data @analysis]
          "results" [results @analysis]

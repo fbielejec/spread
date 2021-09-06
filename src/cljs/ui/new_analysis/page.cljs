@@ -2,8 +2,6 @@
   (:require [re-frame.core :as re-frame]
             [reagent-material-ui.core.app-bar :refer [app-bar]]
             [reagent-material-ui.core.grid :refer [grid]]
-            [reagent-material-ui.core.tab :refer [tab]]
-            [reagent-material-ui.core.tabs :refer [tabs]]
             [reagent-material-ui.core.toolbar :refer [toolbar]]
             [reagent-material-ui.core.typography :refer [typography]]
             [reagent-material-ui.styles :as styles]
@@ -15,7 +13,7 @@
             [ui.router.component :refer [page]]
             [ui.router.subs :as router.subs]
             [ui.utils :as ui-utils :refer [>evt]]
-            [shared.components :refer [button]]))
+            [shared.components :refer [tabs]]))
 
 (defn header []
   [:div.header
@@ -23,29 +21,17 @@
 
 (defn body [active-tab]
   [:div.body
-   [tabs {:value     active-tab
-          :centered  true
-          :on-change (fn [_ value]
-                       (>evt [:router/navigate :route/new-analysis nil {:tab value}]))}
-    [tab {:value "discrete-mcc-tree"
-          :label (reagent/as-element
-                  [:div
-                   [typography {} "Discrete"]
-                   [typography {} "MCC tree"]])}]
-    [tab {:value "discrete-rates"
-          :label (reagent/as-element
-                  [:div
-                   [typography {} "Discrete"]
-                   [typography {} "Rates"]])}]
-    [tab {:value "continuous-mcc-tree"
-          :label (reagent/as-element
-                  [:div
-                   [typography {} "Continuous"]
-                   [typography {} "MCC tree"]])}]]
+   [tabs {:on-change (fn [_ value]                       
+                       (>evt [:router/navigate :route/new-analysis nil {:tab value}]))
+          :active active-tab 
+          :tabs-vec [{:id "discrete-mcc-tree"   :label "Discrete"   :sub-label "MCC tree"}
+                     {:id "discrete-rates"      :label "Discrete"   :sub-label "Rates"}
+                     {:id "continuous-mcc-tree" :label "Continuous" :sub-label "MCC tree"}]}]
    (case active-tab
      "discrete-mcc-tree"   [discrete-mcc-tree {}]
      "discrete-rates"      [discrete-rates {}]
-     "continuous-mcc-tree" [continuous-mcc-tree {}])])
+     "continuous-mcc-tree" [continuous-mcc-tree {}]
+     [discrete-mcc-tree {}])])
 
 
 ;; NOTE: specs

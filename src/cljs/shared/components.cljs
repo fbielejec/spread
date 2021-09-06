@@ -1,5 +1,6 @@
 (ns shared.components
-  (:require [re-frame.core :refer [subscribe dispatch]]))
+  (:require [re-frame.core :refer [subscribe dispatch]]
+            [reagent.core :as reagent]))
 
 (defn collapsible-tab [{:keys [id title icon badge-text badge-color child]}]
   (let [open? @(subscribe [:collapsible-tabs/open? id])]
@@ -35,3 +36,13 @@
   [:div.labeled-field {:style style}
    [:span.label label]
    [:span.text text]])
+
+(defn tabs [{:keys [on-change active tabs-vec]}]  
+  [:div.tabs
+   (for [{:keys [id label sub-label]} tabs-vec]
+     ^{:key id}
+     [:div.tab-wrapper.clickable {:on-click #(on-change nil id)
+                                  :class (when (= active id) "active")}
+      [:div.tab
+       [:div.label label]
+       [:div.sub-label sub-label]]])])

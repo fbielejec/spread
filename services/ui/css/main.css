@@ -403,6 +403,11 @@ li {
 	border-bottom: 1px solid #DEDEE8;
 }
 
+.analysis-results .body .tabs-wrapper {
+	display: flex;
+    justify-content: center;    
+}
+
 .analysis-results .results {
     display: flex;
 	align-items: center;
@@ -410,7 +415,7 @@ li {
 	width: 100%;
     color: #3A3668;
 }
-
+	
 .analysis-results .results .visualization {
     width: 800px;
 }

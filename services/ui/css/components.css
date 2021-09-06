@@ -178,3 +178,36 @@
 	width: 300px;
 	height: 38px;
 }
+
+/* Tabs */
+
+.tabs {    
+	border: 1px solid #ECEFF8;
+	border-radius: 10px;
+	margin-top: 10px;
+}
+
+.tabs .tab-wrapper {
+	color: #3A3668;
+	display: inline-block;
+}
+
+.tabs .tab-wrapper.active {
+	color: #EEBE53;
+	background-color: #FFFDF8;
+	border: 1px solid #EEBE53;
+	border-radius: 10px;
+}
+
+.tabs .tab {	
+    padding: 10px 50px 10px 50px;    
+	display: flex;
+	flex-direction: column;
+	align-items: center;    
+}
+
+.tabs .tab .sub-label {
+	font-size: 10px;
+}
+
+
