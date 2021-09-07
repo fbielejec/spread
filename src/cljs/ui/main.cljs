@@ -30,8 +30,8 @@
   (mount/stop))
 
 (defn ^:dev/after-load start []
-  (let [config (config/load)]
-    (js/console.log "Starting..." )
+  (let [{:keys [version] :as config} (config/load)]
+    (js/console.log (str "Starting v" version " ..."))
     (-> (mount/only #{#'logging/logging
                       #'router/router})
         (mount/with-args config)

@@ -37,20 +37,20 @@
   :host "0.0.0.0"}
 
  :builds
- {:ui {:target     :browser
-       :output-dir "services/ui/js"
-       :asset-path "/js"
-       :js-options {:js-package-dirs ["node_modules"]}
-       :modules
-       {:main ;; <- becomes /js/main.js
-        {:entries [ui.main]}}
-       :devtools
-       {:http-root "services/ui"
-        :http-port 8020}
-       :release
-       {:compiler-options {:warnings-as-errors true
-                           :infer-externs      :auto
-                           :optimizations      :advanced}}}
+ {:ui              {:target     :browser
+                    :output-dir "services/ui/js"
+                    :asset-path "/js"
+                    :js-options {:js-package-dirs ["node_modules"]}
+                    :modules
+                    {:main ;; <- becomes /js/main.js
+                     {:entries [ui.main]}}
+                    :devtools
+                    {:http-root "services/ui"
+                     :http-port 8020}
+                    :release
+                    {:compiler-options {:warnings-as-errors true
+                                        :infer-externs      :auto
+                                        :optimizations      :advanced}}}
   :analysis-viewer {:target     :browser
                     :output-dir "services/analysis-viewer/js"
                     :asset-path "/js"

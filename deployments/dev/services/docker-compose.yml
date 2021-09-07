@@ -59,3 +59,12 @@ services:
   #   # depends_on:
   #     # - api
   #     # - worker
+
+  # analysis-viewer:
+  #   image: analysis-viewer-service:latest
+  #   container_name: dev_analysis-viewer
+  #   network_mode: host
+  #   ports:
+  #     - 8040:80
+  #   # depends_on:
+  #     # - ui

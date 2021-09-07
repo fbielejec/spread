@@ -47,15 +47,19 @@ fi
 
 # PUSH
 
-if [ $PUSH = true ]
-then
-  echo "Pushing $IMG to Dockerhub"
-  # authenticate docker to use dockerhub registry
-  echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+if [ $PUSH = true ]; then
+
+  REGISTRY=a8p1v4e1
+  echo "Pushing $IMG to the registry $REGISTRY"
+
+  # authenticate docker to use AWS registry
+  aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/$REGISTRY
   # tag image
-  docker tag $IMG spread/$NAME:$TAG
-  # push to registry
-  docker push spread/$NAME:$TAG
+  docker tag $IMG public.ecr.aws/$REGISTRY/$NAME:$TAG
+  # docker tag $IMG public.ecr.aws/$REGISTRY/$NAME:$CIRCLE_SHA1
+  # push tagged image to the registry
+  docker push public.ecr.aws/$REGISTRY/$NAME:$TAG
+
 fi
 
 echo "Done"

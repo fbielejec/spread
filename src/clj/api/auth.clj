@@ -65,7 +65,7 @@
    that requires authorization"
   [user-id private-key]
   (let [now     (int (/ (time/millis (time/now)) 1000)) ;; in seconds
-        expires (+ now #_60 2.628e6)                    ;; now + 1 month
+        expires (+ now 2.628e6)                         ;; now + 1 month
         token   (token-encode {:private-key private-key
                                :claims      {:iss "spread"
                                              :iat now

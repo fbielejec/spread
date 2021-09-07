@@ -1,0 +1,174 @@
+org: kuleuven
+app: spread
+service: spread-ui
+
+custom:
+  stage: prod
+  ServiceName: spread-ui
+  # see for availiable values https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecs-taskdefinition.html#cfn-ecs-taskdefinition-cpu
+  ContainerCpu: 256 # 1024 is 1 CPU
+  ContainerMemory: 512 #in MB
+  Image: public.ecr.aws/a8p1v4e1/ui-service:latest
+  ContainerPort: 80 # What port number the application inside the docker container is binding to
+  DesiredCount: 1
+  Path: '*'
+  Priority: 1
+  CertificateArn: arn:aws:acm:us-east-2:816997647674:certificate/0cca2aa7-5343-446c-ad36-d210aeec5c16
+
+provider:
+  name: aws
+  region: us-east-2
+  stage: prod
+  deploymentBucket: spread-${self:custom.stage}-serverlessdeploymentbucket
+
+resources:
+  Resources:
+
+    LogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+        LogGroupName: '/ecs/spread-ui-${self:custom.stage}'
+        RetentionInDays: 7
+
+    # The task definition. This is a simple metadata description of what
+    # container to run, and what resource requirements it has.
+    TaskDefinition:
+      Type: AWS::ECS::TaskDefinition
+      Properties:
+        Family: ${self:custom.ServiceName}
+        Cpu: ${self:custom.ContainerCpu}
+        Memory: ${self:custom.ContainerMemory}
+        NetworkMode: awsvpc
+        RequiresCompatibilities:
+          - FARGATE
+        ExecutionRoleArn: {'Fn::ImportValue': '${self:custom.stage}-ecs-task-role-id'}
+      # TaskRoleArn: !Ref 'Role' # IAM role to give the service containers if the code within needs access to other AWS resources
+        ContainerDefinitions:
+          - Name: ${self:custom.ServiceName}
+            Cpu: ${self:custom.ContainerCpu}
+            Memory: ${self:custom.ContainerMemory}
+            Image: ${self:custom.Image}
+            PortMappings:
+              - ContainerPort: ${self:custom.ContainerPort}
+            LogConfiguration:
+              LogDriver: awslogs
+              options:
+                awslogs-group: '/ecs/spread-ui-${self:custom.stage}'
+                awslogs-region: us-east-2
+                awslogs-stream-prefix: 'ecs'
+            # ENV vars for container
+            # Environment:
+            #   - Name: 'SPREAD_ENV'
+            #     Value: ${env:SPREAD_ENV}
+
+    # The service. The service is a resource which allows you to run multiple
+    # copies of a type of task, and gather up their logs and metrics, as well
+    # as monitor the number of running tasks and replace any that have crashed
+    Service:
+      Type: AWS::ECS::Service
+      DependsOn:
+        - HTTPSLoadBalancerRule
+      Properties:
+        ServiceName: ${self:custom.ServiceName}
+        Cluster: {'Fn::ImportValue': '${self:custom.stage}-spread-ecs-id'}
+        LaunchType: FARGATE
+        DeploymentConfiguration:
+          MaximumPercent: 200
+          MinimumHealthyPercent: 75
+        DesiredCount: ${self:custom.DesiredCount}
+        NetworkConfiguration:
+          AwsvpcConfiguration:
+            AssignPublicIp: DISABLED
+            SecurityGroups:
+              - {'Fn::ImportValue': '${self:custom.stage}-ecs-container-security-group-id'}
+            Subnets:
+              - {'Fn::ImportValue': '${self:custom.stage}-private-subnet1-id'}
+              - {'Fn::ImportValue': '${self:custom.stage}-private-subnet2-id'}
+        TaskDefinition: !Ref 'TaskDefinition'
+        LoadBalancers:
+          - ContainerName: ${self:custom.ServiceName}
+            ContainerPort: ${self:custom.ContainerPort}
+            TargetGroupArn: !Ref 'TargetGroup'
+
+    # Public facing ALB
+    LoadBalancer:
+      Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+      Properties:
+        Name: ${self:custom.stage}-ui-balancer
+        Scheme: internet-facing
+        LoadBalancerAttributes:
+        - Key: idle_timeout.timeout_seconds
+          Value: '30'
+        Subnets:
+          # The load balancer is placed into the public subnets, so that traffic
+          # from the internet can reach the load balancer directly via the internet gateway
+          - {'Fn::ImportValue': '${self:custom.stage}-public-subnet1-id'}
+          - {'Fn::ImportValue': '${self:custom.stage}-public-subnet2-id'}
+        SecurityGroups:
+          - {'Fn::ImportValue': '${self:custom.stage}-public-load-balancer-security-group-id'}
+
+    # A target group. This is used for keeping track of all the tasks, and
+    # what IP addresses / port numbers they have. You can query it yourself,
+    # to use the addresses yourself, but most often this target group is just
+    # connected to an application load balancer, or network load balancer, so
+    # it can automatically distribute traffic across all the targets.
+    TargetGroup:
+      Type: AWS::ElasticLoadBalancingV2::TargetGroup
+      Properties:
+        HealthCheckIntervalSeconds: 6
+        HealthCheckPath: /
+        HealthCheckProtocol: HTTP
+        HealthCheckTimeoutSeconds: 5
+        HealthyThresholdCount: 2
+        TargetType: ip
+        Name: ${self:custom.ServiceName}
+        Port: ${self:custom.ContainerPort}
+        Protocol: HTTP
+        UnhealthyThresholdCount: 2
+        VpcId: {'Fn::ImportValue': '${self:custom.stage}-vpc-id'}
+
+    HTTPSLoadBalancerListener:
+      Type: AWS::ElasticLoadBalancingV2::Listener
+      DependsOn:
+        - LoadBalancer
+      Properties:
+        DefaultActions:
+          - TargetGroupArn: !Ref 'TargetGroup'
+            Type: 'forward'
+        LoadBalancerArn: !Ref 'LoadBalancer'
+        Port: 443
+        Protocol: HTTPS
+        Certificates:
+          - CertificateArn: ${self:custom.CertificateArn}
+
+    HTTPLoadBalancerListener:
+      Type: AWS::ElasticLoadBalancingV2::Listener
+      DependsOn:
+        - LoadBalancer
+      Properties:
+        LoadBalancerArn: !Ref 'LoadBalancer'
+        Port: 80
+        Protocol: HTTP
+        DefaultActions:
+          - RedirectConfig:
+              Host: '#{host}'
+              Path: '/#{path}'
+              Port: 443
+              Query: '#{query}'
+              Protocol: HTTPS
+              StatusCode: HTTP_302
+            Type: redirect
+
+    # Create a rule on the load balancer for routing traffic to the target group
+    HTTPSLoadBalancerRule:
+      Type: AWS::ElasticLoadBalancingV2::ListenerRule
+      Properties:
+        Actions:
+          - TargetGroupArn: !Ref 'TargetGroup'
+            Type: 'forward'
+        Conditions:
+          - Field: path-pattern
+            Values:
+              - ${self:custom.Path}
+        ListenerArn: !Ref 'HTTPSLoadBalancerListener'
+        Priority: ${self:custom.Priority}

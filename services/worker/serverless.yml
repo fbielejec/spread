@@ -1,0 +1,133 @@
+org: kuleuven
+app: spread
+service: spread-worker
+
+custom:
+  stage: prod
+  ServiceName: spread-worker
+  # see for availiable values https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecs-taskdefinition.html#cfn-ecs-taskdefinition-cpu
+  ContainerCpu: 1024 # 1024 is 1 CPU
+  ContainerMemory: 2048 # in MB
+  Image: public.ecr.aws/a8p1v4e1/worker-service:latest
+  DesiredCount: 1 # How many copies of the service task to run
+
+provider:
+  name: aws
+  region: us-east-2
+  stage: prod
+  deploymentBucket: spread-${self:custom.stage}-serverlessdeploymentbucket
+
+resources:
+  Resources:
+
+    DeadLetterQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: spread-${self:custom.stage}-worker-dlq
+        MessageRetentionPeriod: 1209600 # 14 days in seconds
+
+    Queue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: spread-${self:custom.stage}-worker
+        VisibilityTimeout: 120
+        MessageRetentionPeriod: 1209600 # 14 days in seconds
+        RedrivePolicy:
+          deadLetterTargetArn: !GetAtt [DeadLetterQueue, Arn]
+          maxReceiveCount: 2 #  The number of times a message is delivered to the source queue before being moved to the dead-letter queue
+
+    QueuePolicy:
+      Type: AWS::SQS::QueuePolicy
+      Properties:
+        Queues:
+          - Ref: Queue
+        PolicyDocument:
+          Statement:
+          - Sid: "WorkerQueuePolicy"
+            Effect: Allow
+            Action: ['SQS:SendMessage', 'SQS:ReceiveMessage', 'SQS:DeleteMessage']
+            Resource: { 'Fn::Join': [':', ['arn:aws:sqs', 'us-east-2', { Ref: 'AWS::AccountId' }, 'spread-${self:custom.stage}-worker' ]] }
+            Principal:
+              AWS:
+                - { 'Fn::Join': [':', ['arn:aws:iam:', { Ref: 'AWS::AccountId' }, 'user/spread-${self:custom.stage}' ]] }
+                - { 'Fn::Join': [':', ['arn:aws:iam:', { Ref: 'AWS::AccountId' }, 'root' ]] }
+
+    LogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+        LogGroupName: '/ecs/spread-worker-${self:custom.stage}'
+        RetentionInDays: 7
+
+    # The task definition. This is a simple metadata description of what
+    # container to run, and what resource requirements it has.
+    TaskDefinition:
+      Type: AWS::ECS::TaskDefinition
+      Properties:
+        Family: ${self:custom.ServiceName}
+        Cpu: ${self:custom.ContainerCpu}
+        Memory: ${self:custom.ContainerMemory}
+        NetworkMode: awsvpc
+        RequiresCompatibilities:
+          - FARGATE
+        ExecutionRoleArn: {'Fn::ImportValue': '${self:custom.stage}-ecs-task-role-id'}
+      # TaskRoleArn: !Ref 'Role' # IAM role to give the service containers if the code within needs access to other AWS resources
+        ContainerDefinitions:
+          - Name: ${self:custom.ServiceName}
+            Cpu: ${self:custom.ContainerCpu}
+            Memory: ${self:custom.ContainerMemory}
+            Image: ${self:custom.Image}
+            LogConfiguration:
+              LogDriver: awslogs
+              options:
+                awslogs-group: '/ecs/spread-worker-${self:custom.stage}'
+                awslogs-region: us-east-2
+                awslogs-stream-prefix: 'ecs'
+            # ENV vars for container
+            Environment:
+              - Name: 'SPREAD_ENV'
+                Value: ${env:SPREAD_ENV}
+              - Name: 'LOGGING_LEVEL'
+                Value: ${env:LOGGING_LEVEL}
+              - Name: 'API_AWS_REGION'
+                Value: ${env:API_AWS_REGION}
+              - Name: 'API_AWS_ACCESS_KEY_ID'
+                Value: ${env:API_AWS_ACCESS_KEY_ID}
+              - Name: 'API_AWS_SECRET_ACCESS_KEY'
+                Value: ${env:API_AWS_SECRET_ACCESS_KEY}
+              - Name: 'BUCKET_NAME'
+                Value: ${env:BUCKET_NAME}
+              - Name: 'WORKERS_QUEUE_URL'
+                Value: ${env:WORKERS_QUEUE_URL}
+              - Name: 'DB_DATABASE'
+                Value: ${env:DB_DATABASE}
+              - Name: 'DB_HOST'
+                Value: ${env:DB_HOST}
+              - Name: 'DB_PORT'
+                Value: ${env:DB_PORT}
+              - Name: 'DB_USER'
+                Value: ${env:DB_USER}
+              - Name: 'DB_PASSWORD'
+                Value: ${env:DB_PASSWORD}
+
+    # The service. The service is a resource which allows you to run multiple
+    # copies of a type of task, and gather up their logs and metrics, as well
+    # as monitor the number of running tasks and replace any that have crashed
+    Service:
+      Type: AWS::ECS::Service
+      Properties:
+        ServiceName: ${self:custom.ServiceName}
+        Cluster: {'Fn::ImportValue': '${self:custom.stage}-spread-ecs-id'}
+        LaunchType: FARGATE
+        DeploymentConfiguration:
+          MaximumPercent: 200
+          MinimumHealthyPercent: 75
+        DesiredCount: ${self:custom.DesiredCount}
+        NetworkConfiguration:
+          AwsvpcConfiguration:
+            SecurityGroups:
+              - {'Fn::ImportValue': '${self:custom.stage}-ecs-container-security-group-id'}
+            Subnets:
+              - {'Fn::ImportValue': '${self:custom.stage}-private-subnet1-id'}
+              - {'Fn::ImportValue': '${self:custom.stage}-private-subnet2-id'}
+        TaskDefinition: !Ref 'TaskDefinition'
+        SchedulingStrategy: REPLICA

@@ -1,0 +1,38 @@
+export SPREAD_ENV="prod"
+export LOGGING_LEVEL="info"
+export FLOW_STORM=false
+
+export API_AWS_REGION="us-east-2"
+export BUCKET_NAME="spread-prod-uploads"
+
+export DB_HOST="prod-rds.cnpg0w4k89jg.us-east-2.rds.amazonaws.com"
+export DB_DATABASE="spread"
+export DB_PORT=3306
+
+export API_PORT=3001
+
+export WORKERS_QUEUE_URL="https://sqs.us-east-2.amazonaws.com/816997647674/spread-prod-worker"
+
+export GOOGLE_CLIENT_ID=806052757605-5sbubbk9ubj0tq95dp7b58v36tscqv1r.apps.googleusercontent.com
+
+# SECRETS only shared with the CI server
+# NEED to be set
+
+export PUBLIC_KEY=$(cat <<EOF
+-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDzQw5Es/SJj3mYwYP4cdGt/aQpDqOlI8S1ApLsVuBkduNlYXU0hLwAxNbm47iEl5ETklUhMHqVSwkc27inxha9DMv77DyPEVsLgtQbMEp7ebDXNnA/wuEJqtLumVZn6U+GWc77HX6LxFTGWzqX4sPykvPXP4gsOZa3mPW8KKR7BQIDAQAB
+-----END PUBLIC KEY-----
+EOF
+)
+
+export PRIVATE_KEY=$(cat <<EOF
+-----BEGIN RSA PRIVATE KEY-----
+$PRIVATE_KEY_PROD
+-----END RSA PRIVATE KEY-----
+EOF
+)
+# export GOOGLE_CLIENT_SECRET=
+# export DB_USER=
+# export DB_PASSWORD=
+# export API_AWS_ACCESS_KEY_ID=
+# export API_AWS_SECRET_ACCESS_KEY=

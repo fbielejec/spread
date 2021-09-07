@@ -123,7 +123,7 @@
   [cofx k values]
   ;; NOTE: this is the default handler that is intented for queries and mutations
   ;; that have nothing to do besides reducing over their response values
-  (log/info "default handler" {:k k})
+  (log/debug "default handler" {:k k})
   (reduce-handlers cofx values))
 
 (defmethod handler :upload-continuous-tree

@@ -3,7 +3,9 @@
            :serialize :scalar/serialize-big-int}}
 
  :enums
- {:AnalysisType   {:values [:CONTINUOUS_TREE
+ {:Status {:values [:OK]}
+
+  :AnalysisType   {:values [:CONTINUOUS_TREE
                             :DISCRETE_TREE
                             :BAYES_FACTOR_ANALYSIS]}
   :AnalysisStatus {:values [:UPLOADED
@@ -19,22 +21,14 @@
                   :extension {:type String}}}}
 
  :objects
- {
-  ;; :PageInfo {:fields {:hasNextPage     {:type (non-null Boolean)}
-  ;;                     :hasPreviousPage {:type (non-null Boolean)}
-  ;;                     :startCursor     {:type String}
-  ;;                     :endCursor       {:type String}}}
-
-  ;; :AnalysisEdge {:fields {:node   {:type :Analysis}
-  ;;                         :cursor {:type String}}}
-
-  ;; :AnalysisConnection {:fields {:totalCount {:type Int}
-  ;;                               :pageInfo   {:type (non-null :PageInfo)}
-  ;;                               :edges      {:type (list (non-null :AnalysisEdge))}}}
+ {:Pong {:description "Healthcheck response."
+         :fields      {:message {:type (non-null String)}
+                       :status  {:type    (non-null Status)
+                                 :resolve :resolve/pong->status}}}
 
   :JWT {:fields {:accessToken {:type (non-null String)}}}
 
-  :TouchAnalysisReturnType {:description "Returned by touch analysis mutation"
+  :TouchAnalysisReturnType {:description "Returned by touch analysis mutation."
                             :fields      {:id    {:type (non-null ID)}
                                           :isNew {:type (non-null Boolean)}}}
 
@@ -48,9 +42,9 @@
                            :status          {:type (non-null :AnalysisStatus)}
                            :isNew           {:description "Has this analysis been viewed?"
                                              :type        (non-null Boolean)}
-                           :viewerUrlParams {:type String}
                            :error           {:type    String
                                              :resolve :resolve/analysis->error}
+                           :viewerUrlParams {:type String}
                            :ofType          {:type (non-null :AnalysisType)}}}
 
   :ParserStatus {:description "Analysis status, progress and some optional fields. Returned by mutations and used for subscriptions to the workers progress."
@@ -81,7 +75,7 @@
                                  :timeSlicer               {:type     :TimeSlicer
                                                             :resolver :resolve/continuous-tree->time-slicer}
                                  :outputFileUrl            {:type String}
-                                 :analysis                 {:type (non-null :Analysis)
+                                 :analysis                 {:type    (non-null :Analysis)
                                                             :resolve :resolve/tree->user-analysis}}}
 
   :DiscreteTree {:description "Represents DiscreteTree entity."
@@ -96,12 +90,12 @@
                                :timescaleMultiplier    {:type Float}
                                :mostRecentSamplingDate {:type String}
                                :status                 {:type (non-null :AnalysisStatus)}
-                               :analysis               {:type (non-null :Analysis)
-                                                        :resolve :resolve/tree->user-analysis}
                                :progress               {:type Float}
                                :attributeNames         {:type    (list String)
                                                         :resolve :resolve/discrete-tree->attributes}
-                               :outputFileUrl          {:type String}}}
+                               :outputFileUrl          {:type String}
+                               :analysis               {:type    (non-null :Analysis)
+                                                        :resolve :resolve/tree->user-analysis}}}
 
   :TimeSlicer {:description "Represents TimeSlicer entity."
                :fields      {:id                                 {:description "Unique identifier."
@@ -124,7 +118,7 @@
                              :attributeNames                     {:type    (list String)
                                                                   :resolve :resolve/time-slicer->attributes}
                              :outputFileUrl                      {:type String}
-                             :analysis                           {:type (non-null :Analysis)
+                             :analysis                           {:type    (non-null :Analysis)
                                                                   :resolve :resolve/tree->user-analysis}}}
 
   :BayesFactor {:description "Represents BSSVS support for a single connection."
@@ -145,13 +139,18 @@
                                       :progress         {:type Float}
                                       :burnIn           {:type Float}
                                       :outputFileUrl    {:type String}
-                                      :analysis         {:type (non-null :Analysis)
+                                      :analysis         {:type    (non-null :Analysis)
                                                          :resolve :resolve/tree->user-analysis}
                                       :bayesFactors     {:type    (list :BayesFactor)
                                                          :resolve :resolve/bayes-factor-analysis->bayes-factors}}}}
 
  :queries
- {:getAuthorizedUser {:type        :User
+ {:ping {:type        :Pong
+         :description "Returns a healthcheck response."
+         :args        {:from {:type String}}
+         :resolve     :query/pong}
+
+  :getAuthorizedUser {:type        :User
                       :description "Returns a current user. Does not need ID which is read from the Authorization header."
                       :resolve     :query/getAuthorizedUser}
   :getContinuousTree {:type        :ContinuousTree
@@ -172,15 +171,6 @@
   :getUserAnalysis {:type        (list :Analysis)
                     :description "Returns all results for the authenticated user."
                     :resolve     :query/getUserAnalysis}
-
-  ;; :searchUserAnalysis {:type        :AnalysisConnection
-  ;;                      :description "Returns paginated result with completed analysis for the authenticated user."
-  ;;                      :args        {:first    {:type Int}
-  ;;                                    :after    {:type String}
-  ;;                                    :last     {:type Int}
-  ;;                                    :before   {:type String}
-  ;;                                    :statuses {:type (list :AnalysisStatus)}}
-  ;;                      :resolve     :query/searchUserAnalysis}
 
   }
 

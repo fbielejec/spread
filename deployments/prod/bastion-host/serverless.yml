@@ -1,0 +1,32 @@
+org: kuleuven
+app: spread
+service: spread-bastion
+
+custom:
+  stage: prod
+  ami:   ami-00399ec92321828f5 # Ubuntu 20.04
+
+provider:
+  name: aws
+  region: us-east-2
+  stage: prod
+  deploymentBucket: spread-${self:custom.stage}-serverlessdeploymentbucket
+
+resources:
+  Resources:
+
+    # NOTE: we do not allocate a fixed EIP, it will get a public IP from the public subnet
+    # but it WILL change if the instance ever gets rebooted
+    BastionHost:
+      Type: AWS::EC2::Instance
+      Properties:
+        InstanceType: t2.micro #t2.micro
+        ImageId: ${self:custom.ami}
+        # NOTE create that key first and store it safely for ssh access
+        KeyName: spread
+        SubnetId: {'Fn::ImportValue': '${self:custom.stage}-public-subnet1-id'}
+        SecurityGroupIds:
+          - {'Fn::ImportValue': '${self:custom.stage}-bastion-security-group-id'}
+        Tags:
+          - Key: Name
+            Value: ${self:custom.stage}-bastion

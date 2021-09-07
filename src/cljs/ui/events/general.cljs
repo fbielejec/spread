@@ -6,7 +6,7 @@
 
 (defn active-page-changed [{:keys [db]}]
   (let [{:keys [name] :as active-page} (router-queries/active-page db)]
-    (log/info "Active page changed" active-page)
+    (log/debug "Active page changed" active-page)
     (case name
       :route/splash           {:dispatch [:splash/initialize-page]}
       :route/home             {:dispatch [:home/initialize-page]}

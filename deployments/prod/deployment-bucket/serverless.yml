@@ -1,0 +1,19 @@
+org: kuleuven
+app: spread
+service: spread-deployment-bucket
+
+custom:
+  stage: prod
+
+provider:
+  name: aws
+  region: us-east-2  
+  stage: prod
+
+resources:
+  Resources:
+    UploadBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: spread-${self:custom.stage}-serverlessdeploymentbucket
+        AccessControl: Private

@@ -8,9 +8,9 @@
             :user       "icons/icn_user.svg"
             :queue      "icons/icn_queue.svg"
             :upload     "icons/icn_upload.svg"
-            :spread     "icons/icn_spread.png"
+            :spread     "icons/icn_spread.svg"
             :google     "icons/icn_google.svg"
-            :error     "icons/icn_error.svg"
+            :error      "icons/icn_error.svg"
             })
 
 (defn arg->icon [icon]

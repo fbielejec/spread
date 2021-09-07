@@ -1,0 +1,59 @@
+org: kuleuven
+app: spread
+service: spread-iam-user
+
+custom:
+  stage: prod
+
+provider:
+  name: aws
+  region: us-east-2
+  stage: prod
+  deploymentBucket: spread-${self:custom.stage}-serverlessdeploymentbucket
+
+resources:
+  Resources:
+
+    IamUser:
+      Type: AWS::IAM::User
+      Properties:
+        UserName: spread-${self:custom.stage}
+
+    IamUserGroup:
+      Type: AWS::IAM::Group
+      # NOTE: attaching AWS managed policy
+      # Properties:
+      #   ManagedPolicyArns:
+      #     - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+
+    IamUserToGroupAddition:
+      Type: AWS::IAM::UserToGroupAddition
+      Properties:
+        GroupName: !Ref 'IamUserGroup'
+        Users: [!Ref 'IamUser']
+
+    IamUserPolicy:
+      Type: AWS::IAM::Policy
+      Properties:
+        PolicyName: spread-${self:custom.stage}-user-policy
+        PolicyDocument:
+          Statement:
+          - Sid: "UploadsBucketAccess"
+            Effect: Allow
+            Action: ['s3:PutObject']
+            Resource: arn:aws:s3:::spread-${self:custom.stage}-uploads
+        Groups: [!Ref 'IamUserGroup']
+
+    IamKeys:
+      Type: AWS::IAM::AccessKey
+      Properties:
+        UserName: !Ref 'IamUser'
+
+  Outputs:
+    # NOTE: these need to be shared with the CI server
+    AccessKey:
+      Value: !Ref 'IamKeys'
+      Description: AWSAccessKeyId of the IAM user
+    SecretKey:
+      Value: !GetAtt [IamKeys, SecretAccessKey]
+      Description: AWSSecretAccessKey of the IAM user

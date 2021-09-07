@@ -2,5 +2,6 @@
            :unsorted-required-namespaces {:level :warning}
            :unused-namespace {:exclude [hiccups.runtime]}
            :unresolved-symbol {:exclude [(mount.core/defstate)
-                                         (cljs.core.match/match)]}
+                                         (cljs.core.match/match)
+                                         (io.pedestal.interceptor.error/error-dispatch)]}
            :lint-as {mount.core/defstate clojure.core/def}}}

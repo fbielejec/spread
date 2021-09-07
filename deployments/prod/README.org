@@ -1,0 +1,102 @@
+#+STARTUP: overview
+
+* Intro
+
+This directory contains [[https://www.serverless.com][serverless]] templates for deploying AWS footprint for Spread to the AWS cloud.
+They are pretty much like CloudFormation templates.
+
+* Prerequisites
+
+- TODO: instaling serverless
+- TODO: linking with AWS
+- TODO: CI/CD setup
+
+* Deploying
+
+Typically you would run these steps only once, or once per environment.
+Different pieces of the infrastructure are arranged into directories, and typical steps for deploying are:
+
+#+BEGIN_SRC bash
+cd <service>
+sls deploy
+#+END_SRC
+
+Spread uses one stage (prod) corresponding to it's production environment, but the templates can easily be extended to support multiple environments (like dev, staging and/or QA).
+
+There are some dependencies between some of the the service deployments. For example, almost every service depends on the VPC and security-groups being present in the AWS footprint.
+One possible and order to deploy the services is therefore:
+
+- deployments-bucket
+- vpc
+- security-groups
+- ecs
+- iam-user
+- uploads-bucket
+- bastion-host
+- rds
+
+NOTE: before deploying the RDS stack you need to export two ENV variables:
+
+#+BEGIN_SRC bash
+export API_DB_USER=<SETME>
+export API_DB_PASSWORD=<SETME>
+#+END_SRC
+
+They should also be shared with the CI server.
+
+** bastion host
+
+Bastion host is an EC2 instance for getting access to private part of the cloud.
+
+You also launch the docker-compose stack in the bastion EC2, after SSH login to it:
+#+BEGIN_SRC bash
+sudo apt-get install -y \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    software-properties-common \
+    docker.io
+
+# Add user to docker group. Added user can run docker command without sudo command
+sudo gpasswd -a "${USER}" docker
+
+# ensure daemon starts after boot
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# install docker-compose
+sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod a+x /usr/local/bin/docker-compose
+
+# set this ENV var
+echo "DB_HOST=<SETME>" >> /etc/environment
+
+# launch compose
+docker-compose -f docker-compose.yml up -d
+#+END_SRC
+
+It will listen to traffic on port 3306 from the RDS (database) in the cloud and make it availiable on local port 3306 in the bastion EC2 instance.
+You can then easily tunnel that traffic to your local machine port with ssh:
+
+Add this to .ssh/config
+
+#+BEGIN_SRC
+Host spread.bastion
+        HostName bastion.spreadviz.com
+        IdentityFile ~/.ssh/spread.pem
+        Port 22
+        User ubuntu
+        LocalForward 3306 127.0.0.1:3306
+#+END_SRC
+
+Test the connectivity with:
+
+#+BEGIN_SRC bash
+ssh spread.bastion
+#+END_SRC
+
+in another terminal window on your machine you can now access the production database:
+
+#+BEGIN_SRC bash
+mysql --host=127.0.0.1 --port=3306 --enable-cleartext-plugin --user=<DB_USER> --password=<DB_PASSWORD> --database=spread
+#+END_SRC

@@ -1,0 +1,17 @@
+version: "3"
+services:
+
+  haproxy:
+    image: haproxy:1.8.24
+    container_name: haproxy
+    privileged: true
+    network_mode: host
+    volumes:
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    expose:
+      - 3306
+    ports:
+      - 127.0.0.1:3306:3306
+    environment:
+      - DB_HOST=$DB_HOST
+    restart: always

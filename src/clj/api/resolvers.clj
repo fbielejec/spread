@@ -11,6 +11,14 @@
             [shared.utils :refer [clj->gql]]
             [taoensso.timbre :as log]))
 
+(defn pong
+  [_context _args _parent]
+  {:message "Pong"})
+
+(defn pong->status
+  [_context _args _parent]
+  :OK)
+
 (defn get-authorized-user
   [{:keys [authed-user-id db]} _ _]
   (log/info "get-authorized-user query" {:authed-user-id authed-user-id})
@@ -91,61 +99,3 @@
 (defn tree->user-analysis [{:keys [db]} _ {:keys [id]}]
   (log/info "tree->user-analysis" {:analysis-id id})
   (clj->gql  (analysis-model/get-analysis db {:id id})))
-
-
-;; NOTE: not used atm
-#_(defn search-user-analysis
-    "Returns paginated user analysis, following the Relay specification:
-  https://relay.dev/graphql/connections.htm.
-  Clients can ask for the next page using an opaque cursor."
-    [{:keys [db authed-user-id]} {first-n       :first
-                                  after-cursor  :after
-                                  last-n        :last
-                                  before-cursor :before
-                                  statuses      :statuses
-                                  readable-name :readable-name
-                                  :or           {statuses      [:UPLOADED
-                                                                :ATTRIBUTES_PARSED
-                                                                :ARGUMENTS_SET
-                                                                :QUEUED
-                                                                :RUNNING
-                                                                :SUCCEEDED
-                                                                :ERROR]
-                                                 readable-name ""}
-                                  :as           args} _]
-    (log/info "search-user-analysis" args)
-    (let [after                          (if after-cursor
-                                           (-> after-cursor decode-base64 Integer/parseInt)
-                                           0)
-          before                         (when before-cursor
-                                           (-> before-cursor decode-base64 Integer/parseInt))
-          {:keys [total-count analysis]} (user-model/search-user-analysis db (merge (cond
-                                                                                      (or first (and first after-cursor))
-                                                                                      {:lower after
-                                                                                       :upper (inc (+ after first-n))}
-
-                                                                                      (and last before-cursor)
-                                                                                      {:lower (dec (+ before last-n))
-                                                                                       :upper before}
-
-                                                                                      :else {:lower 0
-                                                                                             :upper 0})
-                                                                                    {:readable-name readable-name
-                                                                                     :user-id       authed-user-id
-                                                                                     :statuses      statuses}))
-          edges     (map-indexed (fn [index item] {:cursor (inc (+ after index)) ;; NOTE: inc to match SQL which indexes rows from 1
-                                                   :node   item})
-                                 analysis)
-          edges'    (map (fn [item] (update item :cursor (comp encode-base64 str)))
-                         edges)
-          page-info {:has-next-page     (if-not (empty? edges)
-                                          (< (-> edges last :cursor) total-count)
-                                          false)
-                     :has-previous-page (if-not (empty? edges)
-                                          (< 1 (-> edges first :cursor))
-                                          false)
-                     :start-cursor      (-> edges' first :cursor)
-                     :end-cursor        (-> edges' last :cursor)}]
-      (clj->gql {:total-count total-count
-                 :edges       edges'
-                 :page-info   page-info})))

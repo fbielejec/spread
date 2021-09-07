@@ -1,0 +1,54 @@
+org: kuleuven
+app: spread
+service: spread-uploads
+
+custom:
+  stage: prod
+
+provider:
+  name: aws
+  region: us-east-2
+  stage: prod
+  deploymentBucket: spread-${self:custom.stage}-serverlessdeploymentbucket
+
+resources:
+  Resources:
+
+    UploadsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: spread-${self:custom.stage}-uploads
+        AccessControl: Private
+        CorsConfiguration:
+          CorsRules:
+          - AllowedMethods:
+            - GET
+            - PUT
+            - POST
+            - HEAD
+            AllowedOrigins:
+            - "*"
+            AllowedHeaders:
+            - "*"
+
+    UploadsBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        PolicyDocument:
+          Statement:
+            - Sid: "AllowPut"
+              Effect: Allow
+              Principal:
+                AWS: { 'Fn::Join': [':', ['arn:aws:iam:', { Ref: 'AWS::AccountId' }, 'user/spread-${self:custom.stage}' ]] }
+              Action:
+                - 's3:putObject'
+              Resource: arn:aws:s3:::spread-${self:custom.stage}-uploads/*
+            - Sid: "AllowGet"
+              Effect: Allow
+              Principal:
+                AWS: "*"
+              Action:
+                - 's3:getObject'
+              Resource: arn:aws:s3:::spread-${self:custom.stage}-uploads/*
+        Bucket:
+          Ref: UploadsBucket

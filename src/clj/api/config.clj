@@ -21,11 +21,14 @@
           (try-secrets "secrets.edn"))]
 
     {:env     environment
+     :version "1.0.3"
      :logging {:level (or (keyword (get-env-variable "LOGGING_LEVEL")) :debug)}
      :api     {:port            (Integer/parseInt (or (get-env-variable "API_PORT") "3001"))
+               :host (or (get-env-variable "API_HOST") "0.0.0.0")
                :allowed-origins #{"http://localhost:8020"
                                   "http://127.0.0.1:3001"
-                                  "https://studio.apollographql.com"}}
+                                  "https://studio.apollographql.com"
+                                  "https://spreadviz.org"}}
      :aws     (cond-> {:region (when-not dev-env?
                                  (get-env-variable "API_AWS_REGION"))
                        :access-key-id  (or (get-env-variable "API_AWS_ACCESS_KEY_ID") "AKIAIOSFODNN7EXAMPLE")

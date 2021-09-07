@@ -1,23 +1,16 @@
-org: spread
+org: kuleuven
 app: spread
-
 service: db-migration
 
 custom:
-  # Our stage is based on what is passed in when running serverless
-  # commands. Or fallsback to what we have set in the provider section.
-  stage: ${opt:stage, self:provider.stage}
-  region:
-    qa: TODO
-    prod: TODO
+  stage: prod
 
 provider:
   name: aws
-  profile: spread
-  runtime: java8
-  region: ${self:custom.region.${self:custom.stage}, self.region.dev}
-  stage: dev
+  region: us-east-2
+  stage: prod
   deploymentBucket: spread-${self:custom.stage}-serverlessdeploymentbucket
+  runtime: java8
   logRetentionInDays: 14
 
 functions:
@@ -32,11 +25,11 @@ functions:
         - {'Fn::ImportValue': '${self:custom.stage}-private-subnet1-id'}
         - {'Fn::ImportValue': '${self:custom.stage}-private-subnet2-id'}
     environment:
-      API_DB_HOST: ${env:API_DB_HOST}
-      API_DB_DATABASE: ${env:API_DB_DATABASE}
-      API_DB_PORT: ${env:API_DB_PORT}
-      API_DB_USER: ${env:API_DB_USER}
-      API_DB_PASSWORD: ${env:API_DB_PASSWORD}
+      DB_HOST: ${env:DB_HOST}
+      DB_DATABASE: ${env:DB_DATABASE}
+      DB_PORT: ${env:DB_PORT}
+      DB_USER: ${env:DB_USER}
+      DB_PASSWORD: ${env:DB_PASSWORD}
 
 package:
   artifact: target/db-migration.jar

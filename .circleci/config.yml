@@ -26,7 +26,7 @@ orbs:
 #
 # clj-service orb
 # - build: builds a clojure service docker image and persists it to workspace
-# - deploy: gets the docker image from build and an environment parameter and deploys the docker to the environment
+# - deploy: gets the docker image from build and an environment parameter and deploys the service to the environment
 #
   clj-service:
     jobs:
@@ -65,12 +65,53 @@ orbs:
               root: services
               paths:
                 - << parameters.service >>/<< parameters.service >>.tar
-      # deploy: TODO
+      deploy:
+        working_directory: ~/ci-spread
+        environment:
+          AWS_PAGER: ""
+        docker:
+          - image: nodrama/deploy:latest
+        shell: /bin/bash -eo pipefail
+        parameters:
+          spread-env:
+            type: string
+          service:
+            type: string
+        steps:
+          - setup_remote_docker:
+              version: 19.03.13
+          - checkout
+          - attach_workspace:
+              at: services
+          - run:
+              name: Source environment variables
+              command: |
+                cat "env/<< parameters.spread-env >>" >>  $BASH_ENV
+                source $BASH_ENV
+                echo "env: $SPREAD_ENV"
+          - run:
+              name: Configure serverless with AWS credentials
+              command: |
+                echo "env: $SPREAD_ENV"
+                serverless config credentials --provider aws --key $CI_AWS_ACCESS_KEY_ID --secret $CI_AWS_SECRET_ACCESS_KEY
+          - run:
+              name: Deploy with serverless
+              command: |
+                docker load -i << parameters.service >>.tar
+                ./build.sh -b false -p true
+                serverless deploy --stage $SPREAD_ENV
+              working_directory: services/<< parameters.service >>
+          - run:
+              name: Force redeployment of the ECS service
+              command: |
+                # NOTE : force service redeployment or sls doesn't seem to understand the image has changed
+                aws ecs update-service --region $API_AWS_REGION --cluster spread-ecs-$SPREAD_ENV --service spread-<< parameters.service >> --force-new-deployment
+              working_directory: services/<< parameters.service >>
 
 #
 # cljs-service orb
 # - build: builds a ClojureScript service docker image and persists it to workspace
-# - deploy: gets the docker image from build and an environment parameter and deploys the docker to the environment
+# - deploy: gets the docker image from build and an environment parameter and deploys the service to the environment
 #
   cljs-service:
     orbs:
@@ -121,7 +162,48 @@ orbs:
               root: services
               paths:
                 - << parameters.service >>/<< parameters.service >>.tar
-      # deploy: TODO
+      deploy:
+        working_directory: ~/ci-spread
+        environment:
+          AWS_PAGER: ""
+        docker:
+          - image: nodrama/deploy:latest
+        shell: /bin/bash -eo pipefail
+        parameters:
+          spread-env:
+            type: string
+          service:
+            type: string
+        steps:
+          - setup_remote_docker:
+              version: 19.03.13
+          - checkout
+          - attach_workspace:
+              at: services
+          - run:
+              name: Source environment variables
+              command: |
+                cat "env/<< parameters.spread-env >>" >>  $BASH_ENV
+                source $BASH_ENV
+                echo "env: $SPREAD_ENV"
+          - run:
+              name: Configure serverless with AWS credentials
+              command: |
+                echo "env: $SPREAD_ENV"
+                serverless config credentials --provider aws --key $CI_AWS_ACCESS_KEY_ID --secret $CI_AWS_SECRET_ACCESS_KEY
+          - run:
+              name: Deploy with serverless
+              command: |
+                docker load -i << parameters.service >>.tar
+                ./build.sh -b false -p true
+                serverless deploy --stage $SPREAD_ENV
+              working_directory: services/<< parameters.service >>
+          - run:
+              name: Force redeployment of the ECS service
+              command: |
+                # NOTE : force service redeployment or sls doesn't seem to understand the image has changed
+                aws ecs update-service --region $API_AWS_REGION --cluster spread-ecs-$SPREAD_ENV --service spread-<< parameters.service >> --force-new-deployment
+              working_directory: services/<< parameters.service >>
 
 executors:
   java-builder:
@@ -148,14 +230,73 @@ jobs:
           paths:
             - libspread-1.0.0-SNAPSHOT.jar
 
-  Test api:
+  Build db migration lambda:
+    executor: java-builder
+    steps:
+      - checkout
+      - maven-cache/with:
+          cache-version: migration
+          cache-key: services/db-migration/pom.xml
+          steps:
+            - run:
+                name: Compile
+                command: |
+                  mvn clean package
+                working_directory: services/db-migration
+      - persist_to_workspace:
+          root: services
+          paths:
+            - db-migration/target/db-migration.jar
+
+  # NOTE: deploys and invokes db-migraton lambda
+  Instrument DB:
+    working_directory: ~/ci-spread
+    docker:
+      - image: nodrama/deploy:latest
+    shell: /bin/bash -eo pipefail
+    parameters:
+      spread-env:
+        type: string
+    environment:
+      AWS_PAGER: ""
+    steps:
+      - checkout
+      - attach_workspace:
+          at: services
+      - setup_remote_docker:
+          version: 19.03.13
+      - run:
+          name: Source environment variables
+          command: |
+            cat "env/<< parameters.spread-env >>" >>  $BASH_ENV
+            source $BASH_ENV
+            echo "env: $SPREAD_ENV"
+      - run:
+          name: Configure serverless with AWS credentials
+          command: |
+            echo "env: $SPREAD_ENV"
+            serverless config credentials --provider aws --key $CI_AWS_ACCESS_KEY_ID --secret $CI_AWS_SECRET_ACCESS_KEY
+      - run:
+          name: Deploy DB versioning lambda
+          command: |
+            echo "env: $SPREAD_ENV"
+            serverless deploy --stage $SPREAD_ENV
+          working_directory: services/db-migration
+      - run:
+          name: Instrument DB
+          command: |
+            echo "env: $SPREAD_ENV"
+            serverless invoke --function migrate --stage $SPREAD_ENV --log
+          working_directory: services/db-migration
+
+  Test API:
     working_directory: ~/ci-spread
     # https://discuss.circleci.com/t/early-preview-new-ubuntu-20-04-linux-machine-executor-image/37281
     # aws-cli 2.0.52
     # docker 19.03.13
     # docker-compose 1.27.4
     # node 12.18.4 (default)
-    # node 14.8.0
+    # node 14.80.
     # openjdk 1.8
     # openjdk 11.0.8 (default)
     # yarn 1.22.5
@@ -217,7 +358,7 @@ jobs:
           cache-key: deps.edn
           steps:
             - run:
-                name: Install clojure
+                name: Install Clojure
                 command: |
                   curl -O https://download.clojure.org/install/linux-install-1.10.1.536.sh
                   chmod +x linux-install-1.10.1.536.sh
@@ -248,12 +389,55 @@ workflows:
           service: "api"
           requires:
             - Build libspread
-      - Test api:
+      - Test API:
           requires:
             - Build worker service
             - Build api service
       - cljs-service/build:
           name: Build UI
           service: "ui"
+      - cljs-service/build:
+          name: Build Analysis Viewer
+          service: "analysis-viewer"
+      - Build db migration lambda
       # ~~~ DEPLOY ~~~
-      # TODO (QA/PROD)
+      # PROD
+      - "[PROD] Approve deployment":
+          type: approval
+          filters:
+            branches:
+              only:
+                - master
+          requires:
+            - Build db migration lambda
+            - Build Analysis Viewer
+            - Build UI
+            - Test API
+      - Instrument DB:
+          spread-env: "prod"
+          requires:
+            - "[PROD] Approve deployment"
+      - clj-service/deploy:
+          name: "Deploy API service"
+          spread-env: "prod"
+          service: "api"
+          requires:
+            - "[PROD] Approve deployment"
+      - clj-service/deploy:
+          name: "Deploy worker service"
+          spread-env: "prod"
+          service: "worker"
+          requires:
+            - "[PROD] Approve deployment"
+      - cljs-service/deploy:
+          name: "Deploy UI service"
+          spread-env: "prod"
+          service: "ui"
+          requires:
+            - "[PROD] Approve deployment"
+      - cljs-service/deploy:
+          name: "Deploy analysis-viewer service"
+          spread-env: "prod"
+          service: "analysis-viewer"
+          requires:
+            - "[PROD] Approve deployment"

@@ -2,13 +2,13 @@
   (:require [shared.macros :refer [get-env-variable]]))
 
 (def environment (get-env-variable "SPREAD_ENV"))
-(def sentry-dsn (get-env-variable "SENTRY_DSN"))
 (def google-client-id (get-env-variable "GOOGLE_CLIENT_ID" :required))
 (def public-key (get-env-variable "PUBLIC_KEY" :required))
 (def version "0.1.0")
 
 (def default-config
-  {:logging
+  {:version "1.0.1"
+   :logging
    {:level    :info
     :console? true
     :sentry   false}
@@ -40,16 +40,16 @@
   (-> default-config
       (assoc-in [:logging :level] :debug)))
 
-(def qa-config
+(def prod-config
   (-> default-config
       (assoc-in [:logging :level] :info)
-      (assoc-in [:logging :sentry] {:dsn         sentry-dsn
-                                    :min-level   :warn
-                                    :environment "QA"
-                                    :release     version})))
+      (assoc-in [:graphql :ws-url] "wss://api.spreadviz.org/ws")
+      (assoc-in [:graphql :url] "https://api.spreadviz.org/api")
+      (assoc :root-url "https://spreadviz.org")
+      (assoc-in [:google :redirect-url] "https://spreadviz.org/?auth=google")))
 
 (defn load []
   (case environment
     "dev" dev-config
-    "qa"  qa-config
+    "prod"  prod-config
     dev-config))

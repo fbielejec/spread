@@ -1,0 +1,53 @@
+org: kuleuven
+app: spread
+service: spread-rds
+
+custom:
+  stage: prod  
+  instance: db.t2.micro
+  storage: 20
+  storageType: standard
+  # NOTE: If you want to restore your instance using a DB snapshot uncomment this
+  # snapshot: <arn-of-the-snapshot>
+  availabilityZone: us-east-2a
+
+provider:
+  name: aws
+  region: us-east-2  
+  stage: prod
+  deploymentBucket: spread-${self:custom.stage}-serverlessdeploymentbucket
+
+resources:
+  Resources:
+
+    RDSSubnetGroup:
+      Type: AWS::RDS::DBSubnetGroup
+      Properties:
+        DBSubnetGroupDescription: RDS Subnet Group
+        SubnetIds:
+          - {'Fn::ImportValue': '${self:custom.stage}-private-subnet1-id'}
+          - {'Fn::ImportValue': '${self:custom.stage}-private-subnet2-id'}
+
+    RDSInstance:
+      Type: AWS::RDS::DBInstance
+      Properties:
+        DeletionProtection: true
+        DBInstanceIdentifier: ${self:custom.stage}-rds
+        DBInstanceClass: ${self:custom.instance}
+        AllocatedStorage: ${self:custom.storage}
+        StorageType: ${self:custom.storageType}
+        AvailabilityZone: ${self:custom.availabilityZone}
+        DBSubnetGroupName:
+          Ref: RDSSubnetGroup
+        Engine: mysql
+        EngineVersion: 8.0.25
+        AutoMinorVersionUpgrade: true
+        # NOTE: shares these with the CI server
+        MasterUsername: ${env:DB_USER}
+        MasterUserPassword: ${env:DB_PASSWORD}
+        PubliclyAccessible: false
+        BackupRetentionPeriod: 14 #days
+        VPCSecurityGroups:
+          - {'Fn::ImportValue': '${self:custom.stage}-rds-security-group-id'}
+        # NOTE: If you want to restore your instance using a DB snapshot uncomment this
+        # DBSnapshotIdentifier: ${self:custom.snapshot.${self:custom.stage}, self.snapshot.dev}
