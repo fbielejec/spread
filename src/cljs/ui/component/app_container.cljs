@@ -20,7 +20,7 @@
 
 (defn completed-menu-item [_]
   (let [menu-open? (reagent/atom false)]
-    (fn [{:keys [id readable-name of-type status new?]}]      
+    (fn [{:keys [id readable-name of-type status new?]}]
       (let [badge-text (cond
                          (= status "ERROR") "Error"
                          new?               "New")]
@@ -56,7 +56,7 @@
             new-count (count @new-completed)]
         [collapsible-tab (cond-> {:id :completed
                                   :title "Completed data analysis"
-                                  :icon "icons/icn_previous_analysis.svg"                                  
+                                  :icon "icons/icn_previous_analysis.svg"
                                   :child [:div.completed
                                           [search-bar {:value       (or "" @search-term)
                                                        :on-change   #(>evt [:general/set-search %])
@@ -92,12 +92,12 @@
 
 (defn queue []
   (let [queued-analysis (re-frame/subscribe [::subs/queued-analysis])]
-    (fn []      
+    (fn []
       (let [items @queued-analysis
             queued-count (count items)]
         [collapsible-tab (cond-> {:id :queued
                                   :title "Queued"
-                                  :icon "icons/icn_queue.svg"                                
+                                  :icon "icons/icn_queue.svg"
                                   :child [:div.queued
                                           (map (fn [{:keys [id] :as item}]
                                                  ^{:key id} [queued-menu-item item])
@@ -119,7 +119,6 @@
                       :child [:div.run-new
                               (map-indexed (fn [index {:keys [main-label sub-label target query]}]
                                              [:li.clickable {:key      index
-                                                             :button   true
                                                              :on-click #(>evt [:router/navigate target nil query])}
                                               [:span.label main-label]
                                               [:span.text sub-label]])
@@ -188,6 +187,6 @@
      [header-logo]
      [header-menu]
      [:div.app-header-spacer-2]
-     [main-menu]     
+     [main-menu]
      [:div.app-body.panel
       child-page]]))
