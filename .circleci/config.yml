@@ -123,6 +123,8 @@ orbs:
           - image: nodrama/cljs:latest
         shell: /bin/bash -eo pipefail
         parameters:
+          spread-env:
+            type: string
           service:
             type: string
         steps:
@@ -133,7 +135,7 @@ orbs:
               name: set ENV variables
               command: |
                 # this works because this machine uses bash
-                cat env/dev >> $BASH_ENV
+                cat env/<< parameters.spread-env >> >> $BASH_ENV
                 source $BASH_ENV
                 echo "env: $SPREAD_ENV"
           - node/install-packages:
@@ -395,9 +397,13 @@ workflows:
             - Build api service
       - cljs-service/build:
           name: Build UI
+          # NOTE : we build cljs services with prod ENV vars, since they are macro loaded at comile-time
+          spread-env: "prod"
           service: "ui"
       - cljs-service/build:
           name: Build Analysis Viewer
+          # NOTE : we build cljs services with prod ENV vars, since they are macro loaded at comile-time
+          spread-env: "prod"
           service: "analysis-viewer"
       - Build db migration lambda
       # ~~~ DEPLOY ~~~

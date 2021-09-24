@@ -32,12 +32,11 @@
 (defn ^:dev/after-load start []
   (let [{:keys [version] :as config} (config/load)]
     (js/console.log (str "Starting v" version " ..."))
+    (js/console.log (str "Config " config))
     (-> (mount/only #{#'logging/logging
                       #'router/router})
         (mount/with-args config)
-        (mount/start)
-        (as-> $ (log/info "Started" {:components $
-                                     :config     config})))
+        (mount/start))
     (re-frame/dispatch-sync [:general/initialize config])
     (rdom/render [:<>
                   [css-baseline]

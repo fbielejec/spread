@@ -1,5 +1,5 @@
 export SPREAD_ENV="prod"
-export LOGGING_LEVEL="info"
+export LOGGING_LEVEL="debug"
 export FLOW_STORM=false
 
 export API_AWS_REGION="us-east-2"
@@ -13,7 +13,7 @@ export API_PORT=3001
 
 export WORKERS_QUEUE_URL="https://sqs.us-east-2.amazonaws.com/816997647674/spread-prod-worker"
 
-export GOOGLE_CLIENT_ID=806052757605-5sbubbk9ubj0tq95dp7b58v36tscqv1r.apps.googleusercontent.com
+export GOOGLE_CLIENT_ID=334020603249-p4jlop978488upuh75qf3v84bldls0r7.apps.googleusercontent.com
 
 # SECRETS only shared with the CI server
 # NEED to be set

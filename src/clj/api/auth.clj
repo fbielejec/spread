@@ -61,7 +61,7 @@
 
 (defn generate-spread-access-token
   "Generates a long-lived spread token signed with our private key.
-   Clients are supposed to store that tooken safely and include in every request
+   Clients are supposed to store that token safely and include in every request
    that requires authorization"
   [user-id private-key]
   (let [now     (int (/ (time/millis (time/now)) 1000)) ;; in seconds

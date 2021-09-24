@@ -18,6 +18,7 @@
 (defn google-login [{:keys [google db private-key]} {code :code redirect-uri :redirectUri} _]
   (try
     (let [{:keys [client-id client-secret]} google
+          _                                 (log/debug "google oauth2 config" google)
           {:keys [body]}                    (http/post "https://oauth2.googleapis.com/token"
                                                        {:form-params  {:code          code
                                                                        :client_id     client-id
@@ -26,8 +27,11 @@
                                                                        :grant_type    "authorization_code"}
                                                         :content-type :json
                                                         :accept       :json})
+          _                                 (log/debug "google oauth2 API response" {:body body})
           {:keys [id_token]}                (decode-json body)
+          _                                 (log/debug "google id_token" {:token id_token})
           {:keys [email]}                   (auth/verify-google-token id_token client-id)
+          _                                 (log/debug "user email from google id token" {:email email})
           {:keys [id]}                      (user-model/get-user-by-email db {:email email})]
       (log/info "google-login" {:email email :id id})
       (if id
@@ -218,8 +222,8 @@
         status :UPLOADED]
     (try
       ;; TODO : in a transaction
-      (analysis-model/upsert! db {:id      id
-                                  :user-id authed-user-id
+      (analysis-model/upsert! db {:id         id
+                                  :user-id    authed-user-id
                                   :created-on (time/millis (time/now))
                                   :status     status
                                   :of-type    :TIME_SLICER})

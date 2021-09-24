@@ -36,6 +36,8 @@
  {:port 3449
   :host "0.0.0.0"}
 
+ :cache-blockers #{ui.config}
+
  :builds
  {:ui              {:target     :browser
                     :output-dir "services/ui/js"
