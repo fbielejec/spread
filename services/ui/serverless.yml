@@ -56,10 +56,6 @@ resources:
                 awslogs-group: '/ecs/spread-ui-${self:custom.stage}'
                 awslogs-region: us-east-2
                 awslogs-stream-prefix: 'ecs'
-            # ENV vars for container
-            # Environment:
-            #   - Name: 'SPREAD_ENV'
-            #     Value: ${env:SPREAD_ENV}
 
     # The service. The service is a resource which allows you to run multiple
     # copies of a type of task, and gather up their logs and metrics, as well
