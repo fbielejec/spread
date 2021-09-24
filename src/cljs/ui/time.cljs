@@ -24,3 +24,12 @@
         ":"
         (t/minute date-instant))
       (str (t/int (t/year date-instant)) "/" month "/" (t/day-of-month date-instant)))))
+
+(defn format-date-str [date-str]  
+  (-> date-str
+      string->date
+      format))
+
+(defn format-time-str [date-str]  
+  (let [date-obj (string->date date-str)]
+    (str (.getHours date-obj) ":" (.getMinutes date-obj))))
