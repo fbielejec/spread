@@ -8,6 +8,7 @@
 (declare get-user-analysis)
 (declare get-user-analysis)
 (declare touch-analysis)
+(declare delete-analysis)
 
 (hugsql/def-db-fns "sql/analysis.sql")
 (hugsql/def-sqlvec-fns "sql/analysis.sql")

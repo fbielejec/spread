@@ -175,8 +175,17 @@
                                                                               (prn "TODO"))} "Load different file"]
                                                       [menu-item {:on-click (fn []
                                                                               (prn "TODO"))} "Copy settings"]
-                                                      [menu-item {:on-click (fn []
-                                                                              (prn "TODO"))} "Delete"]]]])
+                                                      [menu-item {:on-click
+                                                                  (fn [event]
+                                                                    (>evt [:graphql/query {:query
+                                                                                           "mutation DeleteAnalysisMutation($analysisId: ID!) {
+                                                                                             deleteAnalysis(id: $analysisId) {
+                                                                                               id
+                                                                                             }
+                                                                                          }"
+                                                                                           :variables {:analysisId id}}])
+                                                                    (.stopPropagation event))}
+                                                       "Delete"]]]])
                       :secondary (reagent/as-element [typography {:class-name (:secondary classes)}
                                                       (type->label of-type)])}]]))
 
@@ -233,12 +242,7 @@
 (defn queue [classes {:keys [default-expanded?]}]
   (let [queued-analysis (re-frame/subscribe [::subs/queued-analysis])]
     (fn []
-      (let [items
-            #_           [{:readable-name "Relaxed_sDollo_AllSingleton_v2"
-                           :progress      0.3
-                           :id            "fff-ff-fff"
-                           :of-type       "CONTINUOUS_TREE"}]
-            @queued-analysis
+      (let [items @queued-analysis
             queued-count (count items)]
         [accordion {:defaultExpanded default-expanded?}
          [accordion-summary {:expand-icon (reagent/as-element [:img {:src (:dropdown icons)}])}

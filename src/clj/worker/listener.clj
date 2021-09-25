@@ -12,7 +12,12 @@
             [clojure.data.json :as json]
             [mount.core :as mount :refer [defstate]]
             [shared.errors :as errors]
-            [shared.utils :refer [file-exists? longest-common-substring round decode-json]]
+            [shared.utils :refer [file-exists? longest-common-substring round decode-json
+                                  tree-object-extension
+                                  trees-object-extension
+                                  locations-object-extension
+                                  log-object-extension
+                                  output-object-extension]]
             [taoensso.timbre :as log]
             [worker.maps :as maps])
   (:import [com.spread.parsers BayesFactorParser ContinuousTreeParser DiscreteTreeParser TimeSlicerParser]
@@ -41,7 +46,7 @@
   (log/info "handling discrete-tree-upload" args)
   (try
     (let [;; TODO: parse extension
-          tree-object-key (str user-id "/" id ".tree")
+          tree-object-key (str user-id "/" id tree-object-extension)
           tree-file-path  (str tmp-dir "/" tree-object-key)
           _               (aws-s3/download-file s3 {:bucket    bucket-name
                                                     :key       tree-object-key
@@ -67,7 +72,7 @@
                   locations-file-url]}
           (discrete-tree-model/get-tree db {:id id})
           ;; TODO: parse extension
-          tree-object-key      (str user-id "/" id ".tree")
+          tree-object-key      (str user-id "/" id tree-object-extension)
           tree-file-path       (str tmp-dir "/" tree-object-key)
           ;; is it cached on disk?
           _                    (when-not (file-exists? tree-file-path)
@@ -76,7 +81,7 @@
                                                            :dest-path tree-file-path}))
           locations-file-id    (s3-url->id locations-file-url user-id)
           ;; TODO: parse extension
-          locations-object-key (str user-id "/" locations-file-id ".txt")
+          locations-object-key (str user-id "/" locations-file-id locations-object-extension)
           locations-file-path  (str tmp-dir "/" locations-object-key)
           ;; is it cached on disk?
           _                    (when-not (file-exists? locations-file-path)
@@ -98,7 +103,7 @@
                                  (.setTimescaleMultiplier timescale-multiplier)
                                  (.setMostRecentSamplingDate most-recent-sampling-date)
                                  (.registerProgressObserver progress-handler))
-          output-object-key    (str user-id "/" id ".json")
+          output-object-key    (str user-id "/" id output-object-extension)
           output-object-path   (str tmp-dir "/" output-object-key)
           output-json-str      (.parse parser)
           _                    (spit output-object-path output-json-str :append false)
@@ -109,7 +114,7 @@
       ;; TODO : in a transaction
       (discrete-tree-model/upsert! db {:id              id
                                        :output-file-url url})
-       
+
       (analysis-model/upsert! db {:id     id
                                   :status :SUCCEEDED
                                   :viewer-url-params (maps/build-viewer-url-params user-id id maps-boxes (decode-json output-json-str))}))
@@ -122,7 +127,7 @@
   (log/info "handling continuous-tree-upload" args)
   (try
     (let [;; TODO: parse extension
-          tree-object-key (str user-id "/" id ".tree")
+          tree-object-key (str user-id "/" id tree-object-extension)
           tree-file-path  (str tmp-dir "/" tree-object-key)
           _               (aws-s3/download-file s3 {:bucket    bucket-name
                                                     :key       tree-object-key
@@ -165,7 +170,7 @@
           _ (log/info "TimeSlicer retrieved by continuous tree id" time-slicer)
 
           ;; TODO: parse extension
-          tree-object-key  (str user-id "/" id ".tree")
+          tree-object-key  (str user-id "/" id tree-object-extension)
           tree-file-path   (str tmp-dir "/" tree-object-key)
           ;; is it cached on disk?
           _                (when-not (file-exists? tree-file-path)
@@ -219,7 +224,7 @@
                                                    :relaxed-random-walk-rate-attribute-name
                                                    relaxed-random-walk-rate-attribute-name}}))
 
-          output-object-key  (str user-id "/" id ".json")
+          output-object-key  (str user-id "/" id output-object-extension)
           output-object-path (str tmp-dir "/" output-object-key)
           data               (merge continuous-tree-parser-output
                                     (when time-slicer
@@ -229,7 +234,7 @@
           _                  (aws-s3/upload-file s3 {:bucket    bucket-name
                                                      :key       output-object-key
                                                      :file-path output-object-path})
-          url                (aws-s3/build-url aws-config bucket-name output-object-key)          
+          url                (aws-s3/build-url aws-config bucket-name output-object-key)
           _                  (log/info "Continuous tree output URL" {:url url})]
       ;; TODO : in a transaction
       (continuous-tree-model/upsert! db {:id              id
@@ -242,7 +247,7 @@
       (errors/handle-analysis-error! db id e))))
 
 (defn- parse-time-slicer [{:keys [id user-id db s3 bucket-name progress-handler parser-settings]}]
-  (let [trees-object-key (str user-id "/" id ".trees")
+  (let [trees-object-key (str user-id "/" id trees-object-extension)
         trees-file-path  (str tmp-dir "/" trees-object-key)
         ;; is it cached on disk?
         _                (when-not (file-exists? trees-file-path)
@@ -289,7 +294,7 @@
                   burn-in]}
           (bayes-factor-model/get-bayes-factor-analysis db {:id id})
           ;; TODO: parse extension
-          log-object-key   (str user-id "/" id ".log")
+          log-object-key   (str user-id "/" id log-object-extension)
           log-file-path    (str tmp-dir "/" log-object-key)
           ;; is it cached on disk?
           _                (when-not (file-exists? log-file-path)
@@ -317,7 +322,7 @@
                  [false true]
                  (let [locations-file-id    (s3-url->id locations-file-url user-id)
                        ;; TODO: parse extension
-                       locations-object-key (str user-id "/" locations-file-id ".txt")
+                       locations-object-key (str user-id "/" locations-file-id locations-object-extension)
                        locations-file-path  (str tmp-dir "/" locations-object-key)
                        ;; is it cached on disk?
                        _                    (when-not (file-exists? locations-file-path)
@@ -340,7 +345,7 @@
                                   :where? ::parse-bayes-factors}))
                  :else (throw (Exception. "Unexpected error")))
           {:keys [bayesFactors spreadData]} (-> (.parse parser) (json/read-str :key-fn keyword))
-          output-object-key                 (str user-id "/" id ".json")
+          output-object-key                 (str user-id "/" id output-object-extension)
           output-object-path                (str tmp-dir "/" output-object-key)
           _                                 (spit output-object-path (json/write-str spreadData) :append false)
           _                                 (aws-s3/upload-file s3 {:bucket    bucket-name
@@ -371,7 +376,7 @@
                                                  :bucket-name bucket-name
                                                  :aws-config  aws
                                                  :maps-boxes  maps-boxes}]
-    
+
     (log/info "Starting worker listener" config)
     (loop []
       (try

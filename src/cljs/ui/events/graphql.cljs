@@ -7,7 +7,7 @@
             [clojure.string :as string]
             [re-frame.core :as re-frame]
             [taoensso.timbre :as log]
-            [ui.utils :refer [>evt dispatch-n]]))
+            [ui.utils :refer [>evt dispatch-n dissoc-in]]))
 
 (defn gql-name->kw [gql-name]
   (when gql-name
@@ -305,6 +305,10 @@
 (defmethod handler :touch-analysis
   [{:keys [db]} _ {:keys [id is-new]}]
   {:db (assoc-in db [:analysis id :new?] is-new)})
+
+(defmethod handler :delete-analysis
+  [{:keys [db]} _ {:keys [id]}]
+  {:db (dissoc-in db [:analysis id])})
 
 (defmethod handler :google-login
   [_ _ {:keys [access-token]}]

@@ -8,6 +8,12 @@
   (:import [java.io ByteArrayInputStream ByteArrayOutputStream]
            [java.util Base64]))
 
+(def tree-object-extension ".tree")
+(def trees-object-extension ".trees")
+(def locations-object-extension ".txt")
+(def log-object-extension ".log")
+(def output-object-extension ".json")
+
 (defn get-env-variable
   [var-name & [required?]]
   (let [var-value (System/getenv var-name)]
@@ -91,6 +97,9 @@
               (if (= a b)
                 (recur s1 s2 len (if (> len maxlen) len maxlen))
                 (recur s1 s2 0 maxlen))))))
+
+(defn file-extension [s]
+  (second (re-find #"(\.[a-zA-Z0-9]+)$" s)))
 
 (comment
   (decode-transit (encode-transit {:a 1}))

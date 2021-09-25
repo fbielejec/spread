@@ -32,6 +32,9 @@
                             :fields      {:id    {:type (non-null ID)}
                                           :isNew {:type (non-null Boolean)}}}
 
+  :DeleteAnalysisReturnType {:description "Returned by delete analysis mutation."
+                             :fields      {:id {:type (non-null ID)}}}
+
   :Analysis {:description "Represents common fields of a parser. Returned by queries."
              :fields      {:id              {:type (non-null ID)}
                            :userId          {:type (non-null ID)}
@@ -281,4 +284,9 @@
   :touchAnalysis {:type        :TouchAnalysisReturnType
                   :description "Marks analysis as viewed"
                   :args        {:id {:type (non-null ID)}}
-                  :resolve     :mutation/touchAnalysis}}}
+                  :resolve     :mutation/touchAnalysis}
+
+  :deleteAnalysis {:type        :DeleteAnalysisReturnType
+                   :description "Deletes analysis from the DB and it's content from S3"
+                   :args        {:id {:type (non-null ID)}}
+                   :resolve     :mutation/deleteAnalysis}}}

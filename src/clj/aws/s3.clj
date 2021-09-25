@@ -104,6 +104,18 @@
       :Body
       (io/copy (io/file dest-path))))
 
+(defn delete-file
+
+  "Deletes the file from s3 `bucket` and `key` and"
+
+  [s3 {:keys [bucket key]}]
+  (log/info "Deleting file from s3" {:bucket bucket
+                                     :key    key})
+  (-> (aws/invoke s3 {:op      :DeleteObject
+                      :request {:Bucket bucket
+                                :Key    key}})
+      (throw-on-error {:api :s3 :fn ::delete-file})))
+
 (defn build-url [aws-config bucket key]
   (if-let [s3-host (:s3-host aws-config)]
     ;; this is MinIO

@@ -98,4 +98,4 @@
 
 (defn tree->user-analysis [{:keys [db]} _ {:keys [id]}]
   (log/info "tree->user-analysis" {:analysis-id id})
-  (clj->gql  (analysis-model/get-analysis db {:id id})))
+  (clj->gql (analysis-model/get-analysis db {:id id})))
